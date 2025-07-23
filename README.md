@@ -2,6 +2,8 @@
 
 A modern, interactive quantum circuit simulator built with React, TypeScript, and Three.js. Design, visualize, and simulate quantum circuits with an intuitive drag-and-drop interface.
 
+View Demo at: (https://castanedanetworks.github.io/quantum-circuit-simulator/)
+
 ![Quantum Circuit Simulator](https://img.shields.io/badge/quantum-simulator-blue)
 ![React](https://img.shields.io/badge/react-18.2.0-blue)
 ![TypeScript](https://img.shields.io/badge/typescript-5.2.2-blue)
