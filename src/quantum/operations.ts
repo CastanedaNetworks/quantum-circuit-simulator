@@ -70,11 +70,13 @@ export class QuantumOperations {
       const twoQubitState = (controlBit << 1) | targetBit;
       
       // Calculate all four possible two-qubit states for this configuration
+      const controlMask = 1 << (numQubits - 1 - controlQubit);
+      const targetMask = 1 << (numQubits - 1 - targetQubit);
       const states = [
-        i & ~(1 << (numQubits - 1 - controlQubit)) & ~(1 << (numQubits - 1 - targetQubit)), // |00⟩
-        i & ~(1 << (numQubits - 1 - controlQubit)) | (1 << (numQubits - 1 - targetQubit)),  // |01⟩
-        i | (1 << (numQubits - 1 - controlQubit)) & ~(1 << (numQubits - 1 - targetQubit)),  // |10⟩
-        i | (1 << (numQubits - 1 - controlQubit)) | (1 << (numQubits - 1 - targetQubit))   // |11⟩
+        (i & ~controlMask) & ~targetMask, // |00⟩
+        (i & ~controlMask) | targetMask,  // |01⟩
+        (i | controlMask) & ~targetMask,  // |10⟩
+        (i | controlMask) | targetMask,   // |11⟩
       ];
 
       // Apply the gate matrix

@@ -23,32 +23,19 @@ export class QuantumSimulator {
   private executionLog!: string[];
 
   constructor(numQubits: number) {
-    console.log('[QuantumSimulator] Creating simulator with', numQubits, 'qubits');
-    
     if (numQubits < 1 || numQubits > 5) {
-      const error = new Error('Number of qubits must be between 1 and 5');
-      console.error('[QuantumSimulator] Constructor error:', error);
-      throw error;
+      throw new Error('Number of qubits must be between 1 and 5');
     }
-    
+
     this.numQubits = numQubits;
-    console.log('[QuantumSimulator] Calling reset...');
     this.reset();
-    console.log('[QuantumSimulator] Constructor completed successfully');
   }
 
   // Reset the simulator to initial state |0...0⟩
   reset(): void {
-    console.log('[QuantumSimulator] Resetting simulator');
-    try {
-      this.currentState = new QuantumState(this.numQubits);
-      this.stateHistory = [this.currentState.clone()];
-      this.executionLog = [`Initialized ${this.numQubits}-qubit system in |${'0'.repeat(this.numQubits)}⟩ state`];
-      console.log('[QuantumSimulator] Reset completed successfully');
-    } catch (error) {
-      console.error('[QuantumSimulator] Error during reset:', error);
-      throw error;
-    }
+    this.currentState = new QuantumState(this.numQubits);
+    this.stateHistory = [this.currentState.clone()];
+    this.executionLog = [`Initialized ${this.numQubits}-qubit system in |${'0'.repeat(this.numQubits)}⟩ state`];
   }
 
   // Get current quantum state

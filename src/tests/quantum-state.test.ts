@@ -74,8 +74,13 @@ describe('QuantumState', () => {
       const state = new QuantumState(1);
       state.setAmplitude(0, complex(3));
       state.setAmplitude(1, complex(4));
+      // setAmplitude is a raw setter; normalization is now explicit so that a
+      // multi-step build never trips over an intermediate (or all-zero) state.
+      state.normalizeState();
       const probs = state.getMeasurementProbabilities();
       expect(probs[0] + probs[1]).toBeCloseTo(1);
+      expect(probs[0]).toBeCloseTo(0.36); // (3/5)^2
+      expect(probs[1]).toBeCloseTo(0.64); // (4/5)^2
     });
 
     it('should convert basis state to string correctly', () => {

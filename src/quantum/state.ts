@@ -5,36 +5,25 @@ export class QuantumState {
   private numQubits: number;
 
   constructor(numQubits: number, initialState?: Complex[]) {
-    console.log('[QuantumState] Creating quantum state with', numQubits, 'qubits');
-    
     if (numQubits > 5) {
-      const error = new Error('Maximum 5 qubits supported');
-      console.error('[QuantumState] Constructor error:', error);
-      throw error;
+      throw new Error('Maximum 5 qubits supported');
     }
-    
+
     this.numQubits = numQubits;
     const numStates = Math.pow(2, numQubits);
-    console.log('[QuantumState] Number of states:', numStates);
-    
+
     if (initialState) {
-      console.log('[QuantumState] Using provided initial state');
       if (initialState.length !== numStates) {
-        const error = new Error(`Initial state must have ${numStates} amplitudes for ${numQubits} qubits`);
-        console.error('[QuantumState] Initial state length error:', error);
-        throw error;
+        throw new Error(`Initial state must have ${numStates} amplitudes for ${numQubits} qubits`);
       }
       this.amplitudes = [...initialState];
     } else {
-      console.log('[QuantumState] Creating default |0...0⟩ state');
       // Initialize to |0...0⟩ state
       this.amplitudes = new Array(numStates).fill(complex(0));
       this.amplitudes[0] = complex(1);
     }
-    
-    console.log('[QuantumState] Normalizing state...');
+
     this.normalize();
-    console.log('[QuantumState] Constructor completed successfully');
   }
 
   // Get the state vector
@@ -62,12 +51,19 @@ export class QuantumState {
     );
   }
 
-  // Set amplitude at a specific basis state
+  // Set amplitude at a specific basis state.
+  // Note: this sets the raw amplitude and does NOT renormalize — callers that
+  // build up a state via multiple setAmplitude calls would otherwise hit
+  // intermediate (and sometimes all-zero) states. Use normalizeState() when done.
   setAmplitude(basisState: number, amplitude: Complex): void {
     if (basisState < 0 || basisState >= this.amplitudes.length) {
       throw new Error(`Basis state ${basisState} out of range`);
     }
     this.amplitudes[basisState] = amplitude;
+  }
+
+  // Public, opt-in normalization for callers that build state manually.
+  normalizeState(): void {
     this.normalize();
   }
 
