@@ -4,31 +4,17 @@ interface LoadingFallbackProps {
   message?: string;
 }
 
-export const LoadingFallback: React.FC<LoadingFallbackProps> = ({ 
-  message = "Loading..." 
+export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
+  message = 'Loading…',
 }) => {
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="text-center">
-        <div className="relative">
-          {/* Quantum-inspired loading animation */}
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          
-          {/* Quantum dots */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-          </div>
-        </div>
-        
-        <h2 className="text-xl font-semibold text-white mb-2">
+        <div className="w-10 h-10 border-2 border-slate-200 border-t-blue-700 rounded-full animate-spin mx-auto mb-5" />
+        <h1 className="text-base font-semibold text-slate-900 tracking-tight">
           Quantum Circuit Simulator
-        </h2>
-        <p className="text-gray-400">{message}</p>
-        
-        {/* Debug info */}
-        <div className="mt-4 text-xs text-gray-500">
-          <p>Check browser console for detailed logs</p>
-        </div>
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 font-mono">{message}</p>
       </div>
     </div>
   );
@@ -36,10 +22,10 @@ export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
 
 export const ComponentLoadingFallback: React.FC<{ name: string }> = ({ name }) => {
   return (
-    <div className="bg-gray-800 rounded-lg p-6 border border-gray-600">
+    <div className="bg-white rounded-md p-6 border border-slate-200">
       <div className="flex items-center space-x-3">
-        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-gray-300">Loading {name}...</span>
+        <div className="w-4 h-4 border-2 border-slate-200 border-t-blue-700 rounded-full animate-spin" />
+        <span className="text-sm text-slate-500 font-mono">Loading {name}…</span>
       </div>
     </div>
   );

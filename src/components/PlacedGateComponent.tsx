@@ -25,46 +25,31 @@ export const PlacedGateComponent: React.FC<PlacedGateComponentProps> = ({
     onRemove(placedGate.id);
   };
 
-  const getGateColor = () => {
-    switch (placedGate.gate.name) {
-      case 'Hadamard':
-        return 'bg-yellow-600 border-yellow-500';
-      case 'Pauli-X':
-        return 'bg-red-600 border-red-500';
-      case 'Pauli-Y':
-        return 'bg-green-600 border-green-500';
-      case 'Pauli-Z':
-        return 'bg-blue-600 border-blue-500';
-      case 'CNOT':
-        return 'bg-purple-600 border-purple-500';
-      default:
-        return 'bg-gray-600 border-gray-500';
-    }
-  };
+  const isCnot = placedGate.gate.symbol === 'CX';
+  const isControl = placedGate.targetQubits[0] === placedGate.position.row;
 
   const getGateShape = () => {
-    if (placedGate.gate.symbol === 'CX') {
-      // CNOT gate - show control and target
+    if (isCnot) {
       return (
         <div className="relative w-full h-full flex items-center justify-center">
-          {placedGate.targetQubits[0] === placedGate.position.row ? (
-            // Control qubit (filled circle)
-            <div className="w-4 h-4 bg-white rounded-full" />
+          {isControl ? (
+            // Control qubit — solid dot
+            <div className="w-3 h-3 bg-slate-900 rounded-full" />
           ) : (
-            // Target qubit (circle with plus)
-            <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center">
-              <div className="w-4 h-0.5 bg-white" />
-              <div className="w-0.5 h-4 bg-white absolute" />
+            // Target qubit — ⊕ symbol
+            <div className="w-6 h-6 border border-slate-900 rounded-full flex items-center justify-center">
+              <div className="w-3.5 h-px bg-slate-900" />
+              <div className="w-px h-3.5 bg-slate-900 absolute" />
             </div>
           )}
         </div>
       );
     }
 
-    // Single qubit gate - show symbol
+    // Single-qubit gate — boxed monospace letter, as in a circuit diagram
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <span className="text-white font-bold text-sm">
+        <span className="text-slate-900 font-mono font-semibold text-sm">
           {placedGate.gate.symbol}
         </span>
       </div>
@@ -74,18 +59,13 @@ export const PlacedGateComponent: React.FC<PlacedGateComponentProps> = ({
   return (
     <div
       ref={drag}
-      className={`absolute inset-2 rounded cursor-move transition-all duration-200 border-2 ${getGateColor()} ${
-        isDragging ? 'opacity-50 scale-95' : 'hover:scale-105'
-      }`}
+      className={`absolute inset-2 rounded-sm cursor-move transition-opacity ${
+        isCnot ? '' : 'border border-slate-900 bg-white'
+      } ${isDragging ? 'opacity-40' : ''}`}
       onDoubleClick={handleDoubleClick}
-      title={`${placedGate.gate.name} - Double click to remove`}
+      title={`${placedGate.gate.name} — double-click to remove`}
     >
       {getGateShape()}
-      
-      {/* Hover tooltip */}
-      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
-        {placedGate.gate.name}
-      </div>
     </div>
   );
 };

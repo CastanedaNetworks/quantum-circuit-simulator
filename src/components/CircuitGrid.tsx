@@ -40,21 +40,21 @@ const GridCell: React.FC<GridCellProps> = ({ row, col, onDrop, isOccupied, place
   drop(cellRef);
 
   const getCellClasses = () => {
-    const baseClasses = 'w-16 h-16 border border-gray-600 relative transition-all duration-200';
-    
+    const baseClasses = 'w-16 h-16 border border-slate-200 relative transition-colors';
+
     if (isOccupied && placedGate) {
-      return `${baseClasses} bg-blue-900 border-blue-500`;
+      return `${baseClasses} bg-blue-50 border-blue-300`;
     }
-    
+
     if (isOver && canDrop) {
-      return `${baseClasses} bg-green-900 border-green-500 border-2`;
+      return `${baseClasses} bg-blue-100 border-blue-500`;
     }
-    
+
     if (canDrop) {
-      return `${baseClasses} bg-gray-800 hover:bg-gray-700`;
+      return `${baseClasses} bg-white hover:bg-slate-50`;
     }
-    
-    return `${baseClasses} bg-gray-900`;
+
+    return `${baseClasses} bg-white`;
   };
 
   return (
@@ -113,7 +113,7 @@ export const CircuitGrid: React.FC<CircuitGridProps> = ({
               className="flex items-center justify-end"
               style={{ height: CELL }}
             >
-              <span className="text-gray-300 font-mono text-sm">q{qIndex}</span>
+              <span className="text-slate-500 font-mono text-sm">q{qIndex}</span>
             </div>
           ))}
         </div>
@@ -127,7 +127,7 @@ export const CircuitGrid: React.FC<CircuitGridProps> = ({
           {Array.from({ length: numQubits }, (_, qIndex) => (
             <div
               key={`wire-${qIndex}`}
-              className="absolute h-0.5 bg-gray-600"
+              className="absolute h-px bg-slate-300"
               style={{ top: (qIndex + 0.5) * CELL, left: 0, width: gridWidth }}
             />
           ))}
@@ -171,7 +171,7 @@ export const CircuitGrid: React.FC<CircuitGridProps> = ({
                   return (
                     <div
                       key={`line-${index}`}
-                      className="absolute w-0.5 bg-blue-400"
+                      className="absolute w-px bg-slate-800"
                       style={{
                         left: x,
                         top: Math.min(startY, endY),

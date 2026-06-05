@@ -123,16 +123,16 @@ function App() {
   // Show error screen if initialization failed
   if (initError) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl">!</span>
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
+        <div className="text-center max-w-md bg-white border border-slate-200 rounded-md shadow-sm p-8">
+          <div className="w-10 h-10 border border-red-300 bg-red-50 text-red-700 rounded flex items-center justify-center mx-auto mb-4 font-mono text-lg">
+            !
           </div>
-          <h2 className="text-xl font-bold text-red-400 mb-2">Initialization Error</h2>
-          <p className="text-gray-300 mb-4">{initError}</p>
-          <button 
+          <h2 className="text-base font-semibold text-slate-900 mb-1">Initialization Error</h2>
+          <p className="text-sm text-slate-500 font-mono mb-5">{initError}</p>
+          <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded hover:bg-blue-800 transition-colors"
           >
             Reload Application
           </button>
@@ -146,50 +146,44 @@ function App() {
   return (
     <ErrorBoundary componentName="App Root">
       <DndProvider backend={HTML5Backend}>
-        <div className="min-h-screen bg-gray-950 text-white">
-        <header className="bg-gray-900 shadow-xl">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-                  Quantum Circuit Simulator
-                </h1>
-                <p className="text-gray-400 mt-2">Design and visualize quantum circuits with drag & drop</p>
+        <div className="min-h-screen bg-slate-50 text-slate-900">
+        <header className="bg-white border-b border-slate-200">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-end pt-5">
+              <div className="pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded border border-slate-800 flex items-center justify-center font-mono text-sm font-semibold text-slate-900">
+                    Q
+                  </div>
+                  <h1 className="text-lg font-semibold text-slate-900 tracking-tight">
+                    Quantum Circuit Simulator
+                  </h1>
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                    {numQubits}-qubit
+                  </span>
+                </div>
               </div>
-              
-              {/* Tab Navigation */}
-              <div className="flex space-x-1 bg-gray-800 rounded-lg p-1">
-                <button
-                  onClick={() => setActiveTab('circuit')}
-                  className={`px-4 py-2 rounded transition-colors ${
-                    activeTab === 'circuit' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Circuit Builder
-                </button>
-                <button
-                  onClick={() => setActiveTab('algorithms')}
-                  className={`px-4 py-2 rounded transition-colors ${
-                    activeTab === 'algorithms' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Algorithms
-                </button>
-                <button
-                  onClick={() => setActiveTab('bloch')}
-                  className={`px-4 py-2 rounded transition-colors ${
-                    activeTab === 'bloch' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Bloch Sphere
-                </button>
-              </div>
+
+              {/* Tab Navigation — underline style */}
+              <nav className="flex gap-6">
+                {([
+                  ['circuit', 'Circuit Builder'],
+                  ['algorithms', 'Algorithms'],
+                  ['bloch', 'Bloch Sphere'],
+                ] as const).map(([id, label]) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`pb-3 -mb-px text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === id
+                        ? 'text-blue-700 border-blue-700'
+                        : 'text-slate-500 border-transparent hover:text-slate-800'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
             </div>
           </div>
         </header>
@@ -250,22 +244,30 @@ function App() {
                     />
                   </div>
                   <div className="xl:col-span-1">
-                    <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-                      <h3 className="text-xl font-bold text-white mb-4">Getting Started</h3>
-                      <div className="space-y-3 text-sm text-gray-300">
-                        <p>• Browse quantum algorithm templates by category</p>
-                        <p>• Click an algorithm to see detailed explanations</p>
-                        <p>• Load individual steps or complete algorithms</p>
-                        <p>• Execute step-by-step with explanations</p>
+                    <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+                      <div className="px-5 py-3 border-b border-slate-200">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                          Getting Started
+                        </h3>
                       </div>
-                      <div className="mt-6 p-3 bg-blue-900/20 border border-blue-700 rounded">
-                        <h4 className="font-semibold text-blue-400 mb-1">Available Algorithms</h4>
-                        <ul className="text-blue-300 text-sm space-y-1">
-                          <li>• Bell State Preparation</li>
-                          <li>• Quantum Teleportation</li>
-                          <li>• Grover's Search Algorithm</li>
-                          <li>• Quantum Fourier Transform</li>
+                      <div className="p-5">
+                        <ul className="space-y-2 text-sm text-slate-600">
+                          <li>Browse quantum algorithm templates by category</li>
+                          <li>Click an algorithm to see detailed explanations</li>
+                          <li>Load individual steps or complete algorithms</li>
+                          <li>Execute step-by-step with explanations</li>
                         </ul>
+                        <div className="mt-5 pt-4 border-t border-slate-200">
+                          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            Available Algorithms
+                          </h4>
+                          <ul className="text-sm text-slate-700 space-y-1 font-mono">
+                            <li>Bell State Preparation</li>
+                            <li>Quantum Teleportation</li>
+                            <li>Grover's Search Algorithm</li>
+                            <li>Quantum Fourier Transform</li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -275,11 +277,11 @@ function App() {
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => setAlgorithmMode('browse')}
-                      className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
+                      className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors"
                     >
                       ← Back to Algorithms
                     </button>
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-slate-500 text-sm font-mono">
                       {selectedAlgorithm.qubitsRequired} qubits required
                     </div>
                   </div>

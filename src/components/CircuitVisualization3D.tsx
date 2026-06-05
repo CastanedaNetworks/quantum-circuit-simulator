@@ -24,7 +24,7 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
     const height = mountRef.current.clientHeight;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x111827);
+    scene.background = new THREE.Color(0xf1f5f9); // slate-100
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
@@ -41,23 +41,23 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
     for (let i = 0; i < numQubits; i++) {
       const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 10, 8);
-      const wireMaterial = new THREE.MeshPhongMaterial({ color: 0x4b5563 });
+      const wireMaterial = new THREE.MeshPhongMaterial({ color: 0x94a3b8 }); // slate-400
       const wire = new THREE.Mesh(wireGeometry, wireMaterial);
       wire.rotation.z = Math.PI / 2;
       wire.position.y = -i * 2;
       scene.add(wire);
 
       const sphereGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-      const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0x3b82f6 });
+      const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0x2563eb }); // blue-600
       const startQubit = new THREE.Mesh(sphereGeometry, sphereMaterial);
       startQubit.position.set(-5, -i * 2, 0);
       scene.add(startQubit);
@@ -66,8 +66,8 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
     circuit.forEach((element, idx) => {
       element.targetQubits.forEach((qubitIdx) => {
         const gateGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const gateMaterial = new THREE.MeshPhongMaterial({ 
-          color: element.gate.qubits === 2 ? 0xef4444 : 0x10b981 
+        const gateMaterial = new THREE.MeshPhongMaterial({
+          color: element.gate.qubits === 2 ? 0x2563eb : 0x0f172a // blue-600 / slate-900
         });
         const gate = new THREE.Mesh(gateGeometry, gateMaterial);
         gate.position.set(-3 + idx * 1.5, -qubitIdx * 2, 0);
@@ -96,7 +96,7 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
 
       if (element.gate.qubits === 2) {
         const lineGeometry = new THREE.CylinderGeometry(0.02, 0.02, 2, 8);
-        const lineMaterial = new THREE.MeshPhongMaterial({ color: 0xef4444 });
+        const lineMaterial = new THREE.MeshPhongMaterial({ color: 0x475569 }); // slate-600
         const line = new THREE.Mesh(lineGeometry, lineMaterial);
         line.position.set(
           -3 + idx * 1.5,
@@ -132,9 +132,18 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
   }, [circuit, numQubits]);
 
   return (
-    <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-      <h2 className="text-2xl font-bold text-white mb-4">3D Circuit Visualization</h2>
-      <div ref={mountRef} className="w-full h-96 rounded-lg overflow-hidden" />
+    <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+      <div className="px-5 py-3 border-b border-slate-200">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          3D Circuit Visualization
+        </h2>
+      </div>
+      <div className="p-5">
+        <div
+          ref={mountRef}
+          className="w-full h-96 rounded overflow-hidden bg-slate-100 border border-slate-200"
+        />
+      </div>
     </div>
   );
 };

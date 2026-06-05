@@ -98,76 +98,78 @@ export const VisualCircuitBuilder: React.FC<VisualCircuitBuilderProps> = ({
 
   return (
     <>
-      <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
         {/* Header with controls */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center gap-4 px-5 py-3 border-b border-slate-200 flex-wrap">
           <div>
-            <h2 className="text-2xl font-bold text-white">Visual Circuit Builder</h2>
-            <p className="text-gray-400 text-sm mt-1">
-              Drag gates from the palette to build your quantum circuit
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Visual Circuit Builder
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Drag gates from the palette to build your circuit
             </p>
           </div>
-          
-          <div className="flex space-x-2">
+
+          <div className="flex items-center gap-2">
             <button
               onClick={onRunCircuit}
               disabled={placedGates.length === 0}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-700 disabled:text-gray-400 transition-colors font-semibold"
+              className="px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded border border-blue-700 hover:bg-blue-800 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-colors"
             >
-              ▶ Run Circuit
+              ▶ Run
             </button>
-            
+
             <button
               onClick={() => setConnectionMode(!connectionMode)}
-              className={`px-4 py-2 rounded transition-colors ${
-                connectionMode 
-                  ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              className={`px-3 py-1.5 text-sm font-medium rounded border transition-colors ${
+                connectionMode
+                  ? 'bg-slate-800 text-white border-slate-800 hover:bg-slate-900'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
               }`}
             >
-              {connectionMode ? 'Exit Connection Mode' : 'Connection Mode'}
+              {connectionMode ? 'Exit Connections' : 'Connections'}
             </button>
-            
+
             <button
               onClick={exportCircuit}
               disabled={placedGates.length === 0}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 transition-colors"
+              className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 transition-colors"
             >
-              Export Circuit
+              Export
             </button>
-            
+
             <button
               onClick={clearAllGates}
               disabled={placedGates.length === 0}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-700 disabled:text-gray-400 transition-colors"
+              className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:border-red-300 hover:text-red-700 disabled:text-slate-400 disabled:border-slate-200 disabled:hover:border-slate-200 transition-colors"
             >
-              Clear All
+              Clear
             </button>
           </div>
         </div>
 
+        <div className="p-5">
+
         {/* Circuit stats */}
         {placedGates.length > 0 && (
-          <div className="mb-4 p-3 bg-gray-800 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-6">
-                <div>
-                  <span className="text-gray-400 text-sm">Total Gates:</span>
-                  <span className="text-white ml-2 font-semibold">{stats.totalGates}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 text-sm">Circuit Depth:</span>
-                  <span className="text-white ml-2 font-semibold">{stats.depth}</span>
-                </div>
+          <div className="mb-4 px-3 py-2 bg-slate-50 border border-slate-200 rounded flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex gap-6 text-sm">
+              <div className="text-slate-500">
+                Total gates
+                <span className="text-slate-900 ml-2 font-mono font-semibold">{stats.totalGates}</span>
               </div>
-              
-              <div className="flex space-x-4 text-sm">
-                {Object.entries(stats.gatesByType).map(([gateName, count]) => (
-                  <div key={gateName} className="text-gray-300">
-                    <span className="font-semibold">{gateName}:</span> {count}
-                  </div>
-                ))}
+              <div className="text-slate-500">
+                Depth
+                <span className="text-slate-900 ml-2 font-mono font-semibold">{stats.depth}</span>
               </div>
+            </div>
+
+            <div className="flex gap-3 text-xs font-mono">
+              {Object.entries(stats.gatesByType).map(([gateName, count]) => (
+                <div key={gateName} className="text-slate-500">
+                  <span className="text-slate-700">{gateName}</span> ×{count}
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -192,28 +194,31 @@ export const VisualCircuitBuilder: React.FC<VisualCircuitBuilderProps> = ({
         </div>
 
         {/* Instructions panel */}
-        <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-          <h3 className="text-white font-semibold mb-2">Instructions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+        <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded">
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">
+            Instructions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-600">
             <div>
-              <h4 className="font-semibold text-white mb-1">Basic Operations:</h4>
-              <ul className="space-y-1">
-                <li>• Drag gates from the palette to place them</li>
-                <li>• Double-click placed gates to remove them</li>
-                <li>• Single-qubit gates place on the selected qubit</li>
-                <li>• Multi-qubit gates automatically connect adjacent qubits</li>
+              <h4 className="text-xs font-semibold text-slate-700 mb-1.5">Basic Operations</h4>
+              <ul className="space-y-1 text-[13px]">
+                <li>Drag gates from the palette to place them</li>
+                <li>Double-click placed gates to remove them</li>
+                <li>Single-qubit gates place on the selected qubit</li>
+                <li>Multi-qubit gates connect adjacent qubits</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-1">Advanced Features:</h4>
-              <ul className="space-y-1">
-                <li>• Use Connection Mode for custom qubit connections</li>
-                <li>• Export circuits as JSON for later use</li>
-                <li>• Monitor circuit statistics in real-time</li>
-                <li>• Visual feedback shows drag operations</li>
+              <h4 className="text-xs font-semibold text-slate-700 mb-1.5">Advanced Features</h4>
+              <ul className="space-y-1 text-[13px]">
+                <li>Use Connections for custom qubit links</li>
+                <li>Export circuits as JSON for later use</li>
+                <li>Monitor circuit statistics in real-time</li>
+                <li>Visual feedback shows drag operations</li>
               </ul>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </>

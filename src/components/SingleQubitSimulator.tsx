@@ -39,7 +39,7 @@ export const SingleQubitSimulator: React.FC<SingleQubitSimulatorProps> = () => {
         setCurrentState(simulator.getCurrentState());
         setExecutionLog(simulator.getExecutionLog());
       } catch (error) {
-        console.error('Error applying gate:', error);
+        // Gate application failed; state is unchanged.
       }
     }
   };
@@ -65,7 +65,7 @@ export const SingleQubitSimulator: React.FC<SingleQubitSimulatorProps> = () => {
   const singleQubitGates = availableGates.filter(gate => gate.qubits === 1);
 
   if (!currentState) {
-    return <div className="text-white">Loading simulator...</div>;
+    return <div className="text-sm text-slate-500">Loading simulator...</div>;
   }
 
   return (
@@ -77,160 +77,177 @@ export const SingleQubitSimulator: React.FC<SingleQubitSimulatorProps> = () => {
       />
 
       {/* Gate Controls */}
-      <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-        <h2 className="text-2xl font-bold text-white mb-4">Single Qubit Operations</h2>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gate Selection */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Quantum Gates</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {singleQubitGates.map((gate) => (
-                <button
-                  key={gate.name}
-                  onClick={() => {
-                    setSelectedGate(gate);
-                    applyGate(gate);
-                  }}
-                  className={`p-3 rounded-lg border-2 transition-all duration-200 ${
-                    selectedGate?.name === gate.name
-                      ? 'bg-blue-900 border-blue-500 shadow-lg'
-                      : 'bg-gray-800 border-gray-600 hover:border-gray-500'
-                  }`}
-                >
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white mb-1">
-                      {gate.symbol}
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+        <div className="px-5 py-3 border-b border-slate-200">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Single Qubit Operations
+          </h2>
+        </div>
+
+        <div className="p-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Gate Selection */}
+            <div>
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                Quantum Gates
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {singleQubitGates.map((gate) => (
+                  <button
+                    key={gate.name}
+                    onClick={() => {
+                      setSelectedGate(gate);
+                      applyGate(gate);
+                    }}
+                    className={`p-3 rounded border transition-colors ${
+                      selectedGate?.name === gate.name
+                        ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                        : 'border-slate-300 bg-white hover:border-blue-400 hover:bg-blue-50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl font-mono font-semibold text-slate-900 mb-1">
+                        {gate.symbol}
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        {gate.name}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-300">
-                      {gate.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Gate Information */}
+              {selectedGate && (
+                <div className="mt-4 bg-slate-50 border border-slate-200 rounded p-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                    {selectedGate.name} Gate
+                  </h4>
+                  <div className="text-xs text-slate-500 mb-3 leading-relaxed">
+                    {getGateDescription(selectedGate)}
+                  </div>
+                  <div className="font-mono text-xs">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Matrix</div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {selectedGate.matrix.flat().map((element, idx) => (
+                        <div key={idx} className="bg-white border border-slate-200 px-2 py-1.5 rounded-sm text-center text-blue-800">
+                          {formatMatrixElement(element)}
+                        </div>
+                      ))}
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Simulator Controls */}
+            <div>
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                Simulator Controls
+              </h3>
+              <div className="space-y-3">
+                <button
+                  onClick={resetSimulator}
+                  className="w-full px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 hover:border-red-300 hover:text-red-700 transition-colors"
+                >
+                  Reset to |0⟩
                 </button>
+
+                <button
+                  onClick={measureQubit}
+                  className="w-full px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded border border-blue-700 hover:bg-blue-800 transition-colors"
+                >
+                  Measure Qubit
+                </button>
+
+                <div className="bg-slate-50 border border-slate-200 rounded p-3">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Current Probabilities</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 text-sm">P(|0⟩):</span>
+                      <span className="text-slate-800 font-mono text-sm">
+                        {(currentState.getMeasurementProbability(0) * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 text-sm">P(|1⟩):</span>
+                      <span className="text-slate-800 font-mono text-sm">
+                        {(currentState.getMeasurementProbability(1) * 100).toFixed(2)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Execution Log */}
+          <div className="mt-6">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              Execution Log
+            </h3>
+            <div className="bg-slate-50 border border-slate-200 rounded px-3 py-2 max-h-32 overflow-y-auto">
+              {executionLog.map((entry, index) => (
+                <div key={index} className="text-slate-600 text-xs font-mono mb-0.5">
+                  <span className="text-slate-400">{String(index + 1).padStart(2, '0')}</span>{' '}
+                  {entry}
+                </div>
               ))}
             </div>
-
-            {/* Gate Information */}
-            {selectedGate && (
-              <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-                <h4 className="text-white font-semibold mb-2">{selectedGate.name} Gate</h4>
-                <div className="text-sm text-gray-300 mb-3">
-                  {getGateDescription(selectedGate)}
-                </div>
-                <div className="font-mono text-xs">
-                  <div className="text-gray-400 mb-1">Matrix:</div>
-                  <div className="grid grid-cols-2 gap-1">
-                    {selectedGate.matrix.flat().map((element, idx) => (
-                      <div key={idx} className="bg-gray-700 p-1 rounded text-center text-blue-400">
-                        {formatMatrixElement(element)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Simulator Controls */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Simulator Controls</h3>
-            <div className="space-y-3">
+          {/* Common Quantum Circuits */}
+          <div className="mt-6">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              Common Circuits
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
-                onClick={resetSimulator}
-                className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                onClick={() => {
+                  resetSimulator();
+                  if (simulator) {
+                    simulator.applyGate(availableGates.find(g => g.name === 'Hadamard')!, [0]);
+                    setCurrentState(simulator.getCurrentState());
+                    setExecutionLog(simulator.getExecutionLog());
+                  }
+                }}
+                className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors"
               >
-                Reset to |0⟩
-              </button>
-              
-              <button
-                onClick={measureQubit}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-              >
-                Measure Qubit
+                Create Superposition
               </button>
 
-              <div className="p-3 bg-gray-800 rounded">
-                <h4 className="text-white font-semibold mb-2">Current Probabilities</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">P(|0⟩):</span>
-                    <span className="text-white font-mono">
-                      {(currentState.getMeasurementProbability(0) * 100).toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-300">P(|1⟩):</span>
-                    <span className="text-white font-mono">
-                      {(currentState.getMeasurementProbability(1) * 100).toFixed(2)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <button
+                onClick={() => {
+                  resetSimulator();
+                  if (simulator) {
+                    simulator.applyGate(availableGates.find(g => g.name === 'Pauli-X')!, [0]);
+                    setCurrentState(simulator.getCurrentState());
+                    setExecutionLog(simulator.getExecutionLog());
+                  }
+                }}
+                className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors"
+              >
+                Bit Flip
+              </button>
+
+              <button
+                onClick={() => {
+                  resetSimulator();
+                  if (simulator) {
+                    const hadamard = availableGates.find(g => g.name === 'Hadamard')!;
+                    const pauliZ = availableGates.find(g => g.name === 'Pauli-Z')!;
+                    simulator.applyGate(hadamard, [0]);
+                    simulator.applyGate(pauliZ, [0]);
+                    simulator.applyGate(hadamard, [0]);
+                    setCurrentState(simulator.getCurrentState());
+                    setExecutionLog(simulator.getExecutionLog());
+                  }
+                }}
+                className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors"
+              >
+                Phase Flip
+              </button>
             </div>
-          </div>
-        </div>
-
-        {/* Execution Log */}
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold text-white mb-3">Execution Log</h3>
-          <div className="bg-gray-800 rounded-lg p-3 max-h-32 overflow-y-auto">
-            {executionLog.map((entry, index) => (
-              <div key={index} className="text-gray-300 text-sm mb-1">
-                {index + 1}. {entry}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Common Quantum Circuits */}
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold text-white mb-3">Common Circuits</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <button
-              onClick={() => {
-                resetSimulator();
-                if (simulator) {
-                  simulator.applyGate(availableGates.find(g => g.name === 'Hadamard')!, [0]);
-                  setCurrentState(simulator.getCurrentState());
-                  setExecutionLog(simulator.getExecutionLog());
-                }
-              }}
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors"
-            >
-              Create Superposition
-            </button>
-            
-            <button
-              onClick={() => {
-                resetSimulator();
-                if (simulator) {
-                  simulator.applyGate(availableGates.find(g => g.name === 'Pauli-X')!, [0]);
-                  setCurrentState(simulator.getCurrentState());
-                  setExecutionLog(simulator.getExecutionLog());
-                }
-              }}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              Bit Flip
-            </button>
-            
-            <button
-              onClick={() => {
-                resetSimulator();
-                if (simulator) {
-                  const hadamard = availableGates.find(g => g.name === 'Hadamard')!;
-                  const pauliZ = availableGates.find(g => g.name === 'Pauli-Z')!;
-                  simulator.applyGate(hadamard, [0]);
-                  simulator.applyGate(pauliZ, [0]);
-                  simulator.applyGate(hadamard, [0]);
-                  setCurrentState(simulator.getCurrentState());
-                  setExecutionLog(simulator.getExecutionLog());
-                }
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            >
-              Phase Flip
-            </button>
           </div>
         </div>
       </div>

@@ -126,103 +126,107 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
   const progress = ((currentStep + 1) / algorithm.steps.length) * 100;
 
   return (
-    <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+      <div className="flex justify-between items-center gap-4 px-5 py-3 border-b border-slate-200 flex-wrap">
         <div>
-          <h2 className="text-2xl font-bold text-white">{algorithm.name}</h2>
-          <p className="text-gray-400 text-sm">Step-by-Step Execution</p>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            {algorithm.name}
+          </h2>
+          <p className="text-xs text-slate-400 mt-0.5">Step-by-Step Execution</p>
         </div>
-        
-        <div className="flex items-center space-x-2">
-          <span className="text-gray-400 text-sm">
+
+        <div className="flex items-center gap-3">
+          <span className="text-slate-500 text-sm font-mono">
             Step {currentStep + 1} of {algorithm.steps.length}
           </span>
-          <div className="w-32 bg-gray-700 rounded-full h-2">
+          <div className="w-32 bg-slate-100 rounded-full h-2">
             <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-blue-700 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
       </div>
 
+      <div className="p-5 space-y-6">
+
       {/* Current Step Information */}
-      <div className="mb-6 p-4 bg-gray-800 rounded-lg">
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-sm font-semibold text-slate-900">
             {currentStepData.title}
           </h3>
-          <span className="px-2 py-1 bg-blue-600 text-white rounded text-sm">
+          <span className="px-2 py-1 bg-blue-700 text-white rounded text-xs font-medium">
             Step {currentStep + 1}
           </span>
         </div>
-        
-        <p className="text-gray-300 mb-3">{currentStepData.description}</p>
-        
+
+        <p className="text-slate-600 text-sm mb-3">{currentStepData.description}</p>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
-            <h4 className="font-semibold text-white mb-2">Explanation</h4>
-            <p className="text-gray-300 text-sm">{currentStepData.explanation}</p>
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Explanation</h4>
+            <p className="text-slate-600 text-sm">{currentStepData.explanation}</p>
           </div>
-          
+
           {currentStepData.mathematicalContext && (
             <div>
-              <h4 className="font-semibold text-white mb-2">Mathematics</h4>
-              <div className="bg-gray-900 p-3 rounded font-mono text-blue-400 text-sm">
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Mathematics</h4>
+              <div className="bg-white border border-slate-200 rounded px-3 py-2 font-mono text-blue-800 text-sm">
                 {currentStepData.mathematicalContext}
               </div>
             </div>
           )}
         </div>
-        
+
         {currentStepData.expectedOutcome && (
-          <div className="mt-4 p-3 bg-green-900/20 border border-green-700 rounded">
-            <h4 className="font-semibold text-green-400 mb-1">Expected Outcome</h4>
-            <p className="text-green-300 text-sm">{currentStepData.expectedOutcome}</p>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-blue-700 mb-1">Expected Outcome</h4>
+            <p className="text-slate-700 text-sm">{currentStepData.expectedOutcome}</p>
           </div>
         )}
       </div>
 
       {/* Controls */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-3 mb-4">
+      <div>
+        <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={resetExecution}
-            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
+            className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 transition-colors"
             disabled={currentStep === 0}
           >
             Reset
           </button>
-          
+
           <button
             onClick={executePreviousStep}
-            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
+            className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 transition-colors"
             disabled={currentStep === 0}
           >
             ← Previous
           </button>
-          
+
           <button
             onClick={executeNextStep}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded border border-blue-700 hover:bg-blue-800 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-colors"
             disabled={currentStep === algorithm.steps.length - 1}
           >
             Next →
           </button>
-          
+
           <button
             onClick={executeFullAlgorithm}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+            className="px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded border border-blue-700 hover:bg-blue-800 transition-colors"
           >
             Execute All
           </button>
-          
+
           <button
             onClick={toggleAutoPlay}
-            className={`px-4 py-2 rounded transition-colors ${
-              isAutoPlay 
-                ? 'bg-red-600 hover:bg-red-700 text-white' 
-                : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+            className={`px-3 py-1.5 text-sm font-medium rounded border transition-colors ${
+              isAutoPlay
+                ? 'bg-slate-800 text-white border-slate-800 hover:bg-slate-900'
+                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
             }`}
           >
             {isAutoPlay ? 'Stop Auto-Play' : 'Auto-Play'}
@@ -230,8 +234,8 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
         </div>
 
         {/* Auto-play speed control */}
-        <div className="flex items-center space-x-3">
-          <label className="text-gray-300 text-sm">Auto-play Speed:</label>
+        <div className="flex items-center gap-3">
+          <label className="text-slate-600 text-sm">Auto-play Speed:</label>
           <input
             type="range"
             min="500"
@@ -239,36 +243,36 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
             step="500"
             value={autoPlaySpeed}
             onChange={(e) => setAutoPlaySpeed(parseInt(e.target.value))}
-            className="w-32 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            className="w-32 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
           />
-          <span className="text-gray-400 text-sm">{autoPlaySpeed}ms</span>
+          <span className="text-slate-500 text-sm font-mono">{autoPlaySpeed}ms</span>
         </div>
       </div>
 
       {/* Step Results */}
       {execution?.results && (
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white mb-3">Current State</h3>
-          
+        <div>
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">Current State</h3>
+
           {execution.results.stepResults[currentStep] && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="p-3 bg-gray-800 rounded">
-                <h4 className="font-semibold text-white mb-2">Quantum State</h4>
-                <div className="bg-gray-900 p-2 rounded font-mono text-blue-400 text-sm">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded">
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Quantum State</h4>
+                <div className="bg-white border border-slate-200 rounded px-3 py-2 font-mono text-blue-800 text-sm break-all">
                   {execution.results.stepResults[currentStep].finalState}
                 </div>
               </div>
-              
-              <div className="p-3 bg-gray-800 rounded">
-                <h4 className="font-semibold text-white mb-2">Measurement Probabilities</h4>
+
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded">
+                <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Measurement Probabilities</h4>
                 <div className="space-y-1">
                   {Object.entries(execution.results.stepResults[currentStep].probabilities)
                     .filter(([_, prob]) => prob > 0.001)
                     .sort(([_, a], [__, b]) => b - a)
                     .map(([state, prob]) => (
                       <div key={state} className="flex justify-between text-sm">
-                        <span className="text-gray-300 font-mono">|{state}⟩</span>
-                        <span className="text-white">{(prob * 100).toFixed(2)}%</span>
+                        <span className="text-slate-700 font-mono">|{state}⟩</span>
+                        <span className="text-slate-900 font-mono">{(prob * 100).toFixed(2)}%</span>
                       </div>
                     ))}
                 </div>
@@ -279,39 +283,39 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
       )}
 
       {/* Step Timeline */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white mb-3">Algorithm Timeline</h3>
+      <div>
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">Algorithm Timeline</h3>
         <div className="space-y-2">
           {algorithm.steps.map((step, index) => (
             <div
               key={step.id}
-              className={`p-3 rounded cursor-pointer transition-all duration-200 ${
+              className={`p-3 rounded cursor-pointer border transition-all duration-200 ${
                 index === currentStep
-                  ? 'bg-blue-900/50 border border-blue-500'
+                  ? 'bg-blue-700 border-blue-700'
                   : index < currentStep
-                  ? 'bg-green-900/20 border border-green-700'
-                  : 'bg-gray-800 border border-gray-600'
+                  ? 'bg-blue-50 border-blue-200'
+                  : 'bg-white border-slate-200 hover:bg-slate-50'
               }`}
               onClick={() => executeStep(index)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border ${
                     index === currentStep
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-white text-blue-700 border-white'
                       : index < currentStep
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-600 text-gray-300'
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-white text-slate-400 border-slate-300'
                   }`}>
                     {index + 1}
                   </div>
                   <div>
-                    <div className="text-white font-medium">{step.title}</div>
-                    <div className="text-gray-400 text-sm">{step.description}</div>
+                    <div className={`font-medium text-sm ${index === currentStep ? 'text-white' : 'text-slate-900'}`}>{step.title}</div>
+                    <div className={`text-sm ${index === currentStep ? 'text-blue-100' : 'text-slate-500'}`}>{step.description}</div>
                   </div>
                 </div>
-                
-                <div className="text-gray-400 text-xs">
+
+                <div className={`text-xs font-mono ${index === currentStep ? 'text-blue-100' : 'text-slate-400'}`}>
                   {step.gates.length} gate{step.gates.length !== 1 ? 's' : ''}
                 </div>
               </div>
@@ -322,20 +326,21 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
 
       {/* Algorithm Completion */}
       {currentStep === algorithm.steps.length - 1 && (
-        <div className="p-4 bg-green-900/20 border border-green-700 rounded-lg">
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
               <span className="text-white font-bold">✓</span>
             </div>
             <div>
-              <h4 className="font-semibold text-green-400">Algorithm Complete!</h4>
-              <p className="text-green-300 text-sm">
+              <h4 className="font-semibold text-slate-900 text-sm">Algorithm Complete!</h4>
+              <p className="text-slate-700 text-sm">
                 You have successfully executed all steps of the {algorithm.name} algorithm.
               </p>
             </div>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

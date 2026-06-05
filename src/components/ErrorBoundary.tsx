@@ -38,29 +38,29 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full bg-red-900/20 border border-red-500 rounded-lg p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">!</span>
+        <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4">
+          <div className="max-w-2xl w-full bg-white border border-slate-200 rounded-md shadow-sm">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200">
+              <div className="w-7 h-7 border border-red-300 bg-red-50 text-red-700 rounded flex items-center justify-center font-mono">
+                !
               </div>
-              <h1 className="text-xl font-bold text-red-400">
+              <h1 className="text-base font-semibold text-slate-900">
                 {componentName} Error
               </h1>
             </div>
-            
-            <div className="space-y-4">
+
+            <div className="p-5 space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-white mb-2">Error Message:</h2>
-                <p className="text-red-300 bg-red-900/30 p-3 rounded font-mono text-sm">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Error Message</h2>
+                <p className="text-red-700 bg-red-50 border border-red-200 p-3 rounded font-mono text-sm">
                   {this.state.error?.message || 'Unknown error occurred'}
                 </p>
               </div>
 
               {this.state.error?.stack && (
                 <div>
-                  <h2 className="text-lg font-semibold text-white mb-2">Stack Trace:</h2>
-                  <pre className="text-gray-300 bg-gray-900 p-3 rounded text-xs overflow-auto max-h-64">
+                  <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Stack Trace</h2>
+                  <pre className="text-slate-600 bg-slate-50 border border-slate-200 p-3 rounded text-xs overflow-auto max-h-64 font-mono">
                     {this.state.error.stack}
                   </pre>
                 </div>
@@ -68,17 +68,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {this.state.errorInfo?.componentStack && (
                 <div>
-                  <h2 className="text-lg font-semibold text-white mb-2">Component Stack:</h2>
-                  <pre className="text-gray-300 bg-gray-900 p-3 rounded text-xs overflow-auto max-h-64">
+                  <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Component Stack</h2>
+                  <pre className="text-slate-600 bg-slate-50 border border-slate-200 p-3 rounded text-xs overflow-auto max-h-64 font-mono">
                     {this.state.errorInfo.componentStack}
                   </pre>
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-700">
-                <button 
+              <div className="pt-4 border-t border-slate-200">
+                <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  className="px-3 py-1.5 bg-blue-700 text-white text-sm font-medium rounded hover:bg-blue-800 transition-colors"
                 >
                   Reload Page
                 </button>
@@ -102,11 +102,11 @@ export const SimpleErrorBoundary: React.FC<{ children: ReactNode; name: string }
     <ErrorBoundary 
       componentName={name}
       fallback={
-        <div className="bg-red-900/20 border border-red-500 rounded p-4 m-4">
-          <p className="text-red-400">Error in {name} component</p>
-          <button 
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-sm text-red-700">Error in {name} component</p>
+          <button
             onClick={() => window.location.reload()}
-            className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+            className="mt-2 px-3 py-1.5 bg-white border border-slate-300 text-slate-700 rounded text-sm hover:bg-slate-50 transition-colors"
           >
             Reload
           </button>

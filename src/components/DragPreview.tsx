@@ -19,24 +19,18 @@ export const DragPreview: React.FC<DragPreviewProps> = () => {
     switch (item.type) {
       case DragTypes.GATE:
         return (
-          <div className="bg-blue-600 border-2 border-blue-400 rounded-lg p-3 shadow-lg transform rotate-3">
-            <div className="text-white text-center">
-              <div className="text-xl font-bold">{item.gate.symbol}</div>
-              <div className="text-xs mt-1">{item.gate.name}</div>
-            </div>
+          <div className="w-11 h-11 flex items-center justify-center rounded border border-slate-800 bg-white shadow-md">
+            <span className="text-slate-900 font-mono text-lg font-semibold">{item.gate.symbol}</span>
           </div>
         );
-      
+
       case DragTypes.PLACED_GATE:
         return (
-          <div className="bg-purple-600 border-2 border-purple-400 rounded-lg p-3 shadow-lg transform -rotate-2">
-            <div className="text-white text-center">
-              <div className="text-xl font-bold">{item.placedGate.gate.symbol}</div>
-              <div className="text-xs mt-1">Moving...</div>
-            </div>
+          <div className="w-11 h-11 flex items-center justify-center rounded border border-blue-600 bg-blue-50 shadow-md">
+            <span className="text-blue-800 font-mono text-lg font-semibold">{item.placedGate.gate.symbol}</span>
           </div>
         );
-      
+
       default:
         return null;
     }

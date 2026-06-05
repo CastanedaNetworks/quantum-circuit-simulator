@@ -64,7 +64,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
       // Scene
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0a0a0a);
+      scene.background = new THREE.Color(0xf1f5f9); // slate-100
       sceneRef.current = scene;
       console.log('[BlochSphere] Scene created');
 
@@ -103,15 +103,15 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       console.log('[BlochSphere] Controls created');
 
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
       scene.add(ambientLight);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
       directionalLight.position.set(5, 5, 5);
       directionalLight.castShadow = true;
       scene.add(directionalLight);
 
-      const pointLight = new THREE.PointLight(0x4080ff, 0.4);
+      const pointLight = new THREE.PointLight(0xffffff, 0.3);
       pointLight.position.set(-3, -3, -3);
       scene.add(pointLight);
 
@@ -136,19 +136,19 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     // Main sphere (wireframe)
     const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
     const sphereMaterial = new THREE.MeshBasicMaterial({
-      color: 0x333333,
+      color: 0x94a3b8, // slate-400
       wireframe: true,
       transparent: true,
-      opacity: 0.3
+      opacity: 0.4
     });
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     scene.add(sphere);
 
     // Solid sphere (for depth reference)
     const solidSphereMaterial = new THREE.MeshPhongMaterial({
-      color: 0x1a1a2e,
+      color: 0xe2e8f0, // slate-200
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.35,
       side: THREE.DoubleSide
     });
     const solidSphere = new THREE.Mesh(sphereGeometry, solidSphereMaterial);
@@ -163,19 +163,19 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     const axes = new THREE.Group();
 
     // X-axis (red)
-    const xGeometry = new THREE.CylinderGeometry(0.02, 0.02, axisLength * 2, 8);
-    const xMaterial = new THREE.MeshPhongMaterial({ color: 0xff4444 });
+    const xGeometry = new THREE.CylinderGeometry(0.012, 0.012, axisLength * 2, 8);
+    const xMaterial = new THREE.MeshPhongMaterial({ color: 0xdc2626 });
     const xAxis = new THREE.Mesh(xGeometry, xMaterial);
     xAxis.rotation.z = Math.PI / 2;
     axes.add(xAxis);
 
     // Y-axis (green)
-    const yMaterial = new THREE.MeshPhongMaterial({ color: 0x44ff44 });
+    const yMaterial = new THREE.MeshPhongMaterial({ color: 0x16a34a });
     const yAxis = new THREE.Mesh(xGeometry, yMaterial);
     axes.add(yAxis);
 
     // Z-axis (blue)
-    const zMaterial = new THREE.MeshPhongMaterial({ color: 0x4444ff });
+    const zMaterial = new THREE.MeshPhongMaterial({ color: 0x2563eb });
     const zAxis = new THREE.Mesh(xGeometry, zMaterial);
     zAxis.rotation.x = Math.PI / 2;
     axes.add(zAxis);
@@ -206,12 +206,12 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         return sprite;
       };
 
-      createAxisLabel('X', new THREE.Vector3(1.4, 0, 0), 0xff4444);
-      createAxisLabel('Y', new THREE.Vector3(0, 1.4, 0), 0x44ff44);
-      createAxisLabel('Z', new THREE.Vector3(0, 0, 1.4), 0x4444ff);
-      createAxisLabel('-X', new THREE.Vector3(-1.4, 0, 0), 0xff4444);
-      createAxisLabel('-Y', new THREE.Vector3(0, -1.4, 0), 0x44ff44);
-      createAxisLabel('-Z', new THREE.Vector3(0, 0, -1.4), 0x4444ff);
+      createAxisLabel('X', new THREE.Vector3(1.4, 0, 0), 0xdc2626);
+      createAxisLabel('Y', new THREE.Vector3(0, 1.4, 0), 0x16a34a);
+      createAxisLabel('Z', new THREE.Vector3(0, 0, 1.4), 0x2563eb);
+      createAxisLabel('-X', new THREE.Vector3(-1.4, 0, 0), 0xdc2626);
+      createAxisLabel('-Y', new THREE.Vector3(0, -1.4, 0), 0x16a34a);
+      createAxisLabel('-Z', new THREE.Vector3(0, 0, -1.4), 0x2563eb);
     }
 
     return axes;
@@ -231,7 +231,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
       const geometry = new THREE.RingGeometry(radius - 0.005, radius + 0.005, 32);
       const material = new THREE.MeshBasicMaterial({
-        color: 0x555555,
+        color: 0x94a3b8,
         transparent: true,
         opacity: 0.3,
         side: THREE.DoubleSide
@@ -255,7 +255,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       
       const material = new THREE.LineBasicMaterial({
-        color: 0x555555,
+        color: 0x94a3b8,
         transparent: true,
         opacity: 0.3
       });
@@ -279,13 +279,13 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       direction.normalize(),
       origin,
       length,
-      0xffaa00,
+      0x0f172a,
       length * 0.2,
       length * 0.1
     );
-    
-    // Make arrow thicker and more visible
-    arrowHelper.setColor(0xffaa00);
+
+    // Dark "instrument needle" — stands out against the light sphere
+    arrowHelper.setColor(0x0f172a);
     
     scene.add(arrowHelper);
     return arrowHelper;
@@ -429,82 +429,75 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   // Show error state if initialization failed
   if (initError) {
     return (
-      <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-white">Bloch Sphere</h2>
-          <div className="px-2 py-1 rounded text-xs bg-red-600 text-white">
+      <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+        <div className="flex justify-between items-center px-5 py-3 border-b border-slate-200">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Bloch Sphere</h2>
+          <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-red-50 text-red-700 border border-red-200">
             Error
-          </div>
+          </span>
         </div>
-        
-        <div className="flex items-center justify-center h-96 bg-red-900/20 border border-red-700 rounded-lg">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-white text-2xl">!</span>
+
+        <div className="p-5">
+          <div className="flex items-center justify-center h-80 bg-slate-50 border border-slate-200 rounded">
+            <div className="text-center px-6">
+              <div className="w-10 h-10 border border-red-300 bg-red-50 text-red-700 rounded flex items-center justify-center mx-auto mb-3 font-mono text-lg">
+                !
+              </div>
+              <h3 className="text-sm font-semibold text-slate-900 mb-1">Visualization Error</h3>
+              <p className="text-slate-500 text-xs font-mono mb-3">{initError}</p>
+              <p className="text-slate-400 text-xs">
+                {quantumState.getNumQubits() > 1
+                  ? 'Note: the Bloch sphere only supports single-qubit states'
+                  : 'Three.js initialization failed'}
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-red-400 mb-2">Visualization Error</h3>
-            <p className="text-gray-300 text-sm mb-4">{initError}</p>
-            <p className="text-gray-400 text-xs">
-              {quantumState.getNumQubits() > 1 ? 
-                'Note: Bloch sphere only supports single-qubit states' : 
-                'Three.js initialization failed'
-              }
-            </p>
           </div>
-        </div>
-        
-        <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-          <p className="text-gray-400 text-sm">
-            Current quantum state: {quantumState.getNumQubits()} qubit{quantumState.getNumQubits() !== 1 ? 's' : ''}
-          </p>
         </div>
       </div>
     );
   }
 
+  const status = !isInitialized ? 'Loading' : isAnimating ? 'Animating' : 'Ready';
+
   return (
-    <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white">Bloch Sphere</h2>
-        <div className="flex space-x-2">
-          <div className={`px-2 py-1 rounded text-xs ${
-            !isInitialized ? 'bg-blue-600 text-white' :
-            isAnimating ? 'bg-yellow-600 text-white' : 'bg-green-700 text-white'
-          }`}>
-            {!isInitialized ? 'Loading...' : isAnimating ? 'Animating...' : 'Ready'}
-          </div>
-        </div>
+    <div className="bg-white border border-slate-200 rounded-md shadow-sm">
+      <div className="flex justify-between items-center px-5 py-3 border-b border-slate-200">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Bloch Sphere</h2>
+        <span
+          className={`px-2 py-0.5 rounded text-[11px] font-mono border ${
+            isAnimating
+              ? 'bg-blue-50 text-blue-700 border-blue-200'
+              : 'bg-slate-100 text-slate-500 border-slate-200'
+          }`}
+        >
+          {status}
+        </span>
       </div>
-      
-      <div ref={mountRef} className="w-full h-96 rounded-lg overflow-hidden bg-gray-800" />
-      
-      {/* State information */}
-      <div className="mt-4 p-3 bg-gray-800 rounded-lg">
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div>
-            <span className="text-gray-400">X:</span>
-            <span className="text-red-400 ml-2 font-mono">
-              {currentVector.x.toFixed(3)}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-400">Y:</span>
-            <span className="text-green-400 ml-2 font-mono">
-              {currentVector.y.toFixed(3)}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-400">Z:</span>
-            <span className="text-blue-400 ml-2 font-mono">
-              {currentVector.z.toFixed(3)}
-            </span>
-          </div>
+
+      <div className="p-5">
+        <div
+          ref={mountRef}
+          className="w-full h-96 rounded overflow-hidden bg-slate-100 border border-slate-200"
+        />
+
+        {/* State readout */}
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          {(
+            [
+              ['X', currentVector.x, 'text-red-600'],
+              ['Y', currentVector.y, 'text-green-600'],
+              ['Z', currentVector.z, 'text-blue-600'],
+            ] as const
+          ).map(([label, value, color]) => (
+            <div key={label} className="border border-slate-200 rounded px-3 py-2">
+              <div className={`text-[11px] font-semibold ${color}`}>{label}</div>
+              <div className="font-mono text-sm text-slate-800">{value.toFixed(3)}</div>
+            </div>
+          ))}
         </div>
-        
-        <div className="mt-2 text-xs text-gray-400">
-          <p>• Drag to rotate the sphere</p>
-          <p>• Scroll to zoom in/out</p>
-          <p>• The orange arrow shows the current qubit state</p>
+
+        <div className="mt-3 text-[11px] text-slate-400 leading-relaxed">
+          Drag to rotate · scroll to zoom · the dark arrow marks the current qubit state.
         </div>
       </div>
     </div>

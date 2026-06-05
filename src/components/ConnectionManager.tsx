@@ -96,12 +96,12 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         {Array.from({ length: numQubits }, (_, qIndex) => (
           <div
             key={`connection-indicator-${qIndex}`}
-            className={`absolute w-6 h-6 rounded-full border-2 transition-all duration-200 pointer-events-auto cursor-pointer ${
+            className={`absolute w-6 h-6 rounded-full border transition-colors pointer-events-auto cursor-pointer ${
               connectionState.sourceQubit === qIndex
-                ? 'bg-yellow-500 border-yellow-400'
+                ? 'bg-blue-700 border-blue-800'
                 : connectionState.isConnecting
-                ? 'bg-blue-500 border-blue-400 hover:bg-blue-400'
-                : 'bg-gray-600 border-gray-500 hover:bg-gray-500'
+                ? 'bg-blue-100 border-blue-400 hover:bg-blue-200'
+                : 'bg-white border-slate-400 hover:bg-slate-100'
             }`}
             style={{
               top: `${qIndex * 64 + 32 - 12}px`,
@@ -124,7 +124,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
               y1={connectionState.sourceQubit * 64 + 32}
               x2={0}
               y2={connectionState.sourceQubit * 64 + 32}
-              stroke="#fbbf24"
+              stroke="#1d4ed8"
               strokeWidth="2"
               strokeDasharray="5,5"
               className="animate-pulse"
@@ -139,10 +139,10 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
     if (!isConnectionMode) return null;
 
     return (
-      <div className="absolute -bottom-16 left-0 right-0 bg-gray-800 rounded p-2 text-sm text-gray-300">
+      <div className="absolute -bottom-16 left-0 right-0 bg-white border border-slate-200 rounded p-2 text-sm text-slate-600 shadow-sm">
         {connectionState.isConnecting ? (
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+            <div className="w-2.5 h-2.5 bg-blue-700 rounded-full animate-pulse"></div>
             <span>Click another qubit to complete the connection</span>
             <button
               onClick={() => setConnectionState({
@@ -150,14 +150,14 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
                 sourceQubit: null,
                 isConnecting: false,
               })}
-              className="ml-auto px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+              className="ml-auto px-2 py-1 bg-white border border-slate-300 text-slate-700 rounded text-xs hover:border-red-300 hover:text-red-700 transition-colors"
             >
               Cancel
             </button>
           </div>
         ) : (
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <div className="w-2.5 h-2.5 bg-slate-400 rounded-full"></div>
             <span>Click a qubit to start connecting multi-qubit gates</span>
           </div>
         )}
