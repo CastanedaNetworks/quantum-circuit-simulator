@@ -40,10 +40,7 @@ function App() {
       try {
         setIsLoading(true);
         setInitError(null);
-        
-        // Add a small delay to see loading state
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         const newSimulator = new QuantumSimulator(numQubits);
         setSimulator(newSimulator);
         console.log('[App] QuantumSimulator created successfully');
@@ -324,11 +321,13 @@ function App() {
         <DragPreview />
         
         {/* Debug Panel - only in development */}
-        <DebugPanel 
-          simulator={simulator}
-          simulationResult={simulationResult}
-          circuit={circuit}
-        />
+        {import.meta.env.DEV && (
+          <DebugPanel
+            simulator={simulator}
+            simulationResult={simulationResult}
+            circuit={circuit}
+          />
+        )}
         </div>
       </DndProvider>
     </ErrorBoundary>

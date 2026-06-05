@@ -30,6 +30,12 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
+  // Refs that mirror props/state so callbacks can stay referentially stable
+  // (depending on currentVector here previously caused an infinite render loop).
+  const currentVectorRef = useRef<BlochVector>({ x: 0, y: 0, z: 1 });
+  const quantumStateRef = useRef<QuantumState>(quantumState);
+  quantumStateRef.current = quantumState;
+
   // Initialize Three.js scene
   const initializeScene = useCallback((): { scene: THREE.Scene; camera: THREE.PerspectiveCamera; renderer: THREE.WebGLRenderer; controls: OrbitControls } | undefined => {
     console.log('[BlochSphere] Initializing Three.js scene...');
@@ -64,7 +70,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
       // Camera
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-      camera.position.set(3, 3, 3);
+      camera.position.set(2.2, 2.2, 2.2);
       cameraRef.current = camera;
       console.log('[BlochSphere] Camera created');
 
@@ -307,69 +313,70 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     stateVectorRef.current.setLength(length, length * 0.2, length * 0.1);
   }, []);
 
-  // Animate between states
+  // Animate between states. Reads the start vector from a ref so this callback
+  // stays stable across renders (otherwise it re-triggers the update effect and
+  // loops forever).
   const animateToState = useCallback((newVector: BlochVector) => {
     setIsAnimating(true);
-    setCurrentVector(newVector);
 
-    const startTime = Date.now();
-    const startVector = { ...currentVector };
+    const startTime = performance.now();
+    const startVector = { ...currentVectorRef.current };
 
     const animateFrame = () => {
-      const elapsed = Date.now() - startTime;
+      const elapsed = performance.now() - startTime;
       const progress = Math.min(elapsed / animationDuration, 1);
-      
+
       // Easing function (ease-out cubic)
       const easedProgress = 1 - Math.pow(1 - progress, 3);
-      
+
       const interpolatedVector = BlochSphereUtils.slerp(startVector, newVector, easedProgress);
+      currentVectorRef.current = interpolatedVector;
       setCurrentVector(interpolatedVector);
       updateStateVector(interpolatedVector);
 
       if (progress < 1) {
         requestAnimationFrame(animateFrame);
       } else {
+        currentVectorRef.current = newVector;
         setIsAnimating(false);
       }
     };
 
     requestAnimationFrame(animateFrame);
-  }, [currentVector, animationDuration, updateStateVector]);
+  }, [animationDuration, updateStateVector]);
 
   // Initialize scene on mount
   useEffect(() => {
-    console.log('[BlochSphere] Initializing component, quantumState qubits:', quantumState.getNumQubits());
-    
+    const initialState = quantumStateRef.current;
+
     try {
       const result = initializeScene();
       if (!result) {
         console.warn('[BlochSphere] Failed to initialize scene');
         return;
       }
-      
+
       const { scene } = result;
-      
+
       createBlochSphere(scene);
       createAxes(scene);
       createGrid(scene);
-      
+
       // Create initial state vector - only for single-qubit states
       let initialVector: BlochVector;
-      
-      if (quantumState.getNumQubits() === 1) {
-        initialVector = BlochSphereUtils.stateToBlochVector(quantumState);
-        console.log('[BlochSphere] Using quantum state vector:', initialVector);
+
+      if (initialState.getNumQubits() === 1) {
+        initialVector = BlochSphereUtils.stateToBlochVector(initialState);
       } else {
-        // For multi-qubit states, show the first qubit's reduced state or a default vector
-        console.warn('[BlochSphere] Multi-qubit state detected, using default |0⟩ state');
+        // For multi-qubit states, show a default |0⟩ vector
         initialVector = { x: 0, y: 0, z: 1 }; // |0⟩ state
       }
       const stateVector = createStateVector(scene, initialVector);
       stateVectorRef.current = stateVector;
+      currentVectorRef.current = initialVector;
       setCurrentVector(initialVector);
 
       animate();
-      console.log('[BlochSphere] Component initialization completed successfully');
       setIsInitialized(true);
       setInitError(null);
     } catch (error) {
@@ -402,24 +409,22 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         rendererRef.current.dispose();
       }
     };
-  }, [initializeScene, createBlochSphere, createAxes, createGrid, createStateVector, animate, quantumState]);
+  }, [initializeScene, createBlochSphere, createAxes, createGrid, createStateVector, animate]);
 
-  // Update when quantum state changes
+  // Target vector derived from the current quantum state. Computed in render so
+  // the update effect can depend on its primitive values rather than the
+  // quantumState object identity (which changes every parent render).
+  const targetVector =
+    quantumState.getNumQubits() === 1
+      ? BlochSphereUtils.stateToBlochVector(quantumState)
+      : null;
+
+  // Update when the quantum state actually changes (by value, not identity).
   useEffect(() => {
-    console.log('[BlochSphere] Quantum state updated, qubits:', quantumState.getNumQubits());
-    
-    try {
-      if (quantumState.getNumQubits() === 1) {
-        const newVector = BlochSphereUtils.stateToBlochVector(quantumState);
-        console.log('[BlochSphere] New vector from quantum state:', newVector);
-        animateToState(newVector);
-      } else {
-        console.log('[BlochSphere] Multi-qubit state, keeping current visualization');
-      }
-    } catch (error) {
-      console.error('[BlochSphere] Error updating from quantum state:', error);
-    }
-  }, [quantumState, animateToState]);
+    if (!isInitialized || !targetVector) return;
+    animateToState(targetVector);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized, targetVector?.x, targetVector?.y, targetVector?.z, animateToState]);
 
   // Show error state if initialization failed
   if (initError) {
