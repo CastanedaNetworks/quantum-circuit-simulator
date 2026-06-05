@@ -9,7 +9,7 @@ import { EnhancedGatePalette } from './components/EnhancedGatePalette';
 import { CircuitVisualization3D } from './components/CircuitVisualization3D';
 import { SimulationResults } from './components/SimulationResults';
 import { SingleQubitSimulator } from './components/SingleQubitSimulator';
-import { EnhancedBlochSphere } from './components/EnhancedBlochSphere';
+import { BlochSphere } from './components/BlochSphere';
 import { AlgorithmTemplateSelector } from './components/AlgorithmTemplateSelector';
 import { AlgorithmStepExecutor } from './components/AlgorithmStepExecutor';
 import { DragPreview } from './components/DragPreview';
@@ -198,43 +198,36 @@ function App() {
           {activeTab === 'circuit' ? (
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3 space-y-6">
+                {/* Circuit builder gets the full width so the grid has room */}
+                <SimpleErrorBoundary name="VisualCircuitBuilder">
+                  <VisualCircuitBuilder
+                    numQubits={numQubits}
+                    onCircuitChange={handleCircuitChange}
+                    onRunCircuit={handleRunCircuit}
+                  />
+                </SimpleErrorBoundary>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <SimpleErrorBoundary name="VisualCircuitBuilder">
-                    <VisualCircuitBuilder
-                      numQubits={numQubits}
-                      onCircuitChange={handleCircuitChange}
-                      onRunCircuit={handleRunCircuit}
-                    />
-                  </SimpleErrorBoundary>
-                  
                   <SimpleErrorBoundary name="SimulationResults">
                     <SimulationResults
                       result={simulationResult}
                       numQubits={numQubits}
                     />
                   </SimpleErrorBoundary>
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
                   <SimpleErrorBoundary name="CircuitVisualization3D">
                     <CircuitVisualization3D
                       circuit={circuit}
                       numQubits={numQubits}
                     />
                   </SimpleErrorBoundary>
-                  
-                  {simulationResult && simulationResult.finalState && (
-                    <SimpleErrorBoundary name="BlochSphereVisualization">
-                      <div className="bg-gray-900 rounded-lg p-6 shadow-xl">
-                        <h3 className="text-lg font-semibold text-white mb-4">Quantum State Visualization</h3>
-                        <div className="h-96">
-                          <EnhancedBlochSphere
-                            quantumState={simulationResult.finalState}
-                          />
-                        </div>
-                      </div>
-                    </SimpleErrorBoundary>
-                  )}
                 </div>
+
+                {simulationResult && simulationResult.finalState && (
+                  <SimpleErrorBoundary name="BlochSphereVisualization">
+                    <BlochSphere quantumState={simulationResult.finalState} />
+                  </SimpleErrorBoundary>
+                )}
               </div>
               
               <div className="xl:col-span-1">
