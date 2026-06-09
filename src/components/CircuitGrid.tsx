@@ -19,17 +19,18 @@ interface GridCellProps {
   onDrop: (gate: QuantumGate, position: { row: number; col: number }) => void;
   isOccupied: boolean;
   placedGate?: PlacedGate;
+  canPlace: (gate: QuantumGate) => boolean;
 }
 
-const GridCell: React.FC<GridCellProps> = ({ row, col, onDrop, isOccupied, placedGate }) => {
+const GridCell: React.FC<GridCellProps> = ({ row, col, onDrop, isOccupied, placedGate, canPlace }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: DragTypes.GATE,
     drop: (item: DragItem) => {
-      if (!isOccupied) {
+      if (canPlace(item.gate)) {
         onDrop(item.gate, { row, col });
       }
     },
-    canDrop: () => !isOccupied,
+    canDrop: (item: DragItem) => canPlace(item.gate),
     collect: (monitor: any) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
@@ -83,15 +84,30 @@ export const CircuitGrid: React.FC<CircuitGridProps> = ({
       id: `gate-${Date.now()}-${Math.random()}`,
       gate,
       position,
-      targetQubits: gate.qubits === 1 ? [position.row] : [position.row, position.row + 1],
+      // A k-qubit gate spans k consecutive wires starting at the drop row;
+      // for controlled gates the drop row is the (first) control.
+      targetQubits: Array.from({ length: gate.qubits }, (_, k) => position.row + k),
     };
     onGatePlaced(newGate);
   };
 
+  // A cell is covered if any gate in the same column spans its row.
   const isPositionOccupied = (row: number, col: number): boolean => {
-    return placedGates.some(gate => 
-      gate.position.row === row && gate.position.col === col
+    return placedGates.some(gate =>
+      gate.position.col === col &&
+      row >= gate.position.row &&
+      row < gate.position.row + gate.gate.qubits
     );
+  };
+
+  // A gate fits if it stays on the grid and none of the wires it would span
+  // are already covered in that column.
+  const canPlaceGate = (gate: QuantumGate, row: number, col: number): boolean => {
+    if (row + gate.qubits > numQubits) return false;
+    for (let k = 0; k < gate.qubits; k++) {
+      if (isPositionOccupied(row + k, col)) return false;
+    }
+    return true;
   };
 
   const getPlacedGateAt = (row: number, col: number): PlacedGate | undefined => {
@@ -151,6 +167,7 @@ export const CircuitGrid: React.FC<CircuitGridProps> = ({
                   onDrop={handleGatePlaced}
                   isOccupied={isPositionOccupied(row, col)}
                   placedGate={getPlacedGateAt(row, col)}
+                  canPlace={(gate) => canPlaceGate(gate, row, col)}
                 />
               );
             })}

@@ -5,6 +5,8 @@ export interface QuantumGate {
   symbol: string;
   matrix: Complex[][];
   qubits: number;
+  /** Angle parameters for parameterized gates (e.g. [θ] for Rx). Used by QASM export. */
+  params?: number[];
 }
 
 export interface QubitState {

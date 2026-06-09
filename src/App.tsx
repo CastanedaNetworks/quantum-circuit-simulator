@@ -18,24 +18,19 @@ import { QuantumAlgorithm, AlgorithmStep } from './types/algorithms';
 import { QuantumSimulator } from './quantum/simulator';
 
 function App() {
-  console.log('[App] Component initializing...');
-  
   const [numQubits] = useState(4);
   const [circuit, setCircuit] = useState<CircuitElement[]>([]);
   const [selectedGate, setSelectedGate] = useState<QuantumGate | null>(null);
   const [simulator, setSimulator] = useState<QuantumSimulator | null>(null);
   const [simulationResult, setSimulationResult] = useState<any>(null);
+  const [simulationError, setSimulationError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'circuit' | 'bloch' | 'algorithms'>('circuit');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<QuantumAlgorithm | null>(null);
   const [algorithmMode, setAlgorithmMode] = useState<'browse' | 'execute'>('browse');
   const [isLoading, setIsLoading] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
 
-  console.log('[App] State initialized, numQubits:', numQubits);
-
   useEffect(() => {
-    console.log('[App] Creating QuantumSimulator with', numQubits, 'qubits');
-    
     const initializeApp = async () => {
       try {
         setIsLoading(true);
@@ -43,21 +38,19 @@ function App() {
 
         const newSimulator = new QuantumSimulator(numQubits);
         setSimulator(newSimulator);
-        console.log('[App] QuantumSimulator created successfully');
-        
+
         setIsLoading(false);
       } catch (error) {
-        console.error('[App] Error creating QuantumSimulator:', error);
+        console.error('Error creating QuantumSimulator:', error);
         setInitError(error instanceof Error ? error.message : 'Unknown error');
         setIsLoading(false);
       }
     };
-    
+
     initializeApp();
   }, [numQubits]);
 
   const handleCircuitChange = (newCircuit: CircuitElement[]) => {
-    console.log('[App] Circuit changed, new circuit:', newCircuit);
     setCircuit(newCircuit);
     // Auto-execute circuit as gates are placed
     runSimulation(newCircuit);
@@ -65,21 +58,18 @@ function App() {
 
   const runSimulation = (circuitToRun?: CircuitElement[]) => {
     const currentCircuit = circuitToRun || circuit;
-    console.log('[App] Running simulation with circuit:', currentCircuit);
-    
+
     if (simulator) {
-      console.log('[App] Simulator available, executing circuit');
       simulator.reset();
       try {
         const result = simulator.executeCircuit(currentCircuit);
-        console.log('[App] Simulation successful, result:', result);
         setSimulationResult(result);
+        setSimulationError(null);
       } catch (error) {
-        console.error('[App] Simulation error:', error);
+        console.error('Simulation error:', error);
         setSimulationResult(null);
+        setSimulationError(error instanceof Error ? error.message : 'Simulation failed');
       }
-    } else {
-      console.warn('[App] No simulator available for circuit execution');
     }
   };
 
@@ -112,9 +102,6 @@ function App() {
     handleCircuitChange(newCircuit);
   };
 
-  console.log('[App] Rendering app, activeTab:', activeTab);
-  console.log('[App] Current state - simulator:', !!simulator, 'simulationResult:', !!simulationResult, 'isLoading:', isLoading);
-
   // Show loading screen during initialization
   if (isLoading) {
     return <LoadingFallback message="Initializing quantum simulator..." />;
@@ -141,8 +128,6 @@ function App() {
     );
   }
 
-  console.log('[App] Rendering with DndProvider, backend:', HTML5Backend);
-  
   return (
     <ErrorBoundary componentName="App Root">
       <DndProvider backend={HTML5Backend}>
@@ -206,6 +191,7 @@ function App() {
                     <SimulationResults
                       result={simulationResult}
                       numQubits={numQubits}
+                      error={simulationError}
                     />
                   </SimpleErrorBoundary>
 
@@ -296,6 +282,7 @@ function App() {
                       <SimulationResults
                         result={simulationResult}
                         numQubits={selectedAlgorithm.qubitsRequired}
+                        error={simulationError}
                       />
                       <CircuitVisualization3D
                         circuit={circuit}

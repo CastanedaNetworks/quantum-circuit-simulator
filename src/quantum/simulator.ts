@@ -1,4 +1,4 @@
-import { QuantumState } from './state';
+import { QuantumState, MAX_QUBITS } from './state';
 import { QuantumOperations } from './operations';
 import { QuantumGate, CircuitElement } from '../types/quantum';
 import { complex } from 'mathjs';
@@ -23,8 +23,8 @@ export class QuantumSimulator {
   private executionLog!: string[];
 
   constructor(numQubits: number) {
-    if (numQubits < 1 || numQubits > 5) {
-      throw new Error('Number of qubits must be between 1 and 5');
+    if (numQubits < 1 || numQubits > MAX_QUBITS) {
+      throw new Error(`Number of qubits must be between 1 and ${MAX_QUBITS}`);
     }
 
     this.numQubits = numQubits;

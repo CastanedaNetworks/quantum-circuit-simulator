@@ -26,6 +26,35 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
     isConnecting: false,
   });
 
+  const createConnection = useCallback(
+    (fromQubit: number, toQubit: number) => {
+      // Find gates that could be connected
+      const connectableGates = placedGates.filter(gate =>
+        gate.gate.qubits > 1 &&
+        (gate.targetQubits.includes(fromQubit) || gate.targetQubits.includes(toQubit))
+      );
+
+      if (connectableGates.length > 0) {
+        const gate = connectableGates[0];
+        // Preserve the drawn direction: the qubit the user dragged FROM becomes
+        // the control, the one dragged TO becomes the target.
+        const newTargetQubits = [fromQubit, toQubit];
+
+        const updatedGate: PlacedGate = {
+          ...gate,
+          targetQubits: newTargetQubits,
+          connections: [
+            ...(gate.connections || []),
+            { fromQubit, toQubit }
+          ]
+        };
+
+        onGateUpdated(gate.id, updatedGate);
+      }
+    },
+    [placedGates, onGateUpdated]
+  );
+
   const handleQubitClick = useCallback(
     (qubitIndex: number, gateId?: string) => {
       if (!isConnectionMode) return;
@@ -48,7 +77,7 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
             qubitIndex
           );
         }
-        
+
         // Reset connection state
         setConnectionState({
           sourceGateId: null,
@@ -57,35 +86,8 @@ export const ConnectionManager: React.FC<ConnectionManagerProps> = ({
         });
       }
     },
-    [isConnectionMode, connectionState]
+    [isConnectionMode, connectionState, createConnection]
   );
-
-  const createConnection = (
-    fromQubit: number,
-    toQubit: number
-  ) => {
-    // Find gates that could be connected
-    const connectableGates = placedGates.filter(gate => 
-      gate.gate.qubits > 1 && 
-      (gate.targetQubits.includes(fromQubit) || gate.targetQubits.includes(toQubit))
-    );
-
-    if (connectableGates.length > 0) {
-      const gate = connectableGates[0];
-      const newTargetQubits = [fromQubit, toQubit].sort((a, b) => a - b);
-      
-      const updatedGate: PlacedGate = {
-        ...gate,
-        targetQubits: newTargetQubits,
-        connections: [
-          ...(gate.connections || []),
-          { fromQubit, toQubit }
-        ]
-      };
-
-      onGateUpdated(gate.id, updatedGate);
-    }
-  };
 
   const renderConnectionOverlay = () => {
     if (!isConnectionMode) return null;

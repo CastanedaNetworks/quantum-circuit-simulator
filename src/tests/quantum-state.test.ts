@@ -22,8 +22,8 @@ describe('QuantumState', () => {
       expect(state.getAmplitude(3).re).toBeCloseTo(0); // |11⟩
     });
 
-    it('should throw error for more than 5 qubits', () => {
-      expect(() => new QuantumState(6)).toThrow('Maximum 5 qubits supported');
+    it('should throw error for more than 24 qubits', () => {
+      expect(() => new QuantumState(25)).toThrow('Maximum 24 qubits supported');
     });
 
     it('should accept custom initial state', () => {

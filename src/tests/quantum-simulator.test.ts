@@ -23,8 +23,8 @@ describe('QuantumSimulator', () => {
     });
 
     it('should throw error for invalid qubit count', () => {
-      expect(() => new QuantumSimulator(0)).toThrow('Number of qubits must be between 1 and 5');
-      expect(() => new QuantumSimulator(6)).toThrow('Number of qubits must be between 1 and 5');
+      expect(() => new QuantumSimulator(0)).toThrow('Number of qubits must be between 1 and 24');
+      expect(() => new QuantumSimulator(25)).toThrow('Number of qubits must be between 1 and 24');
     });
   });
 

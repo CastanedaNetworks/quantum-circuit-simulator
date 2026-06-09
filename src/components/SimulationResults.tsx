@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SimulationResult } from '../quantum/simulator';
+import { QuantumOperations } from '../quantum/operations';
+
+const SAMPLE_SHOTS = 1024;
 
 interface SimulationResultsProps {
   result: SimulationResult | null;
   numQubits: number;
+  error?: string | null;
 }
 
 const Panel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -23,7 +27,23 @@ const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   </h3>
 );
 
-export const SimulationResults: React.FC<SimulationResultsProps> = ({ result, numQubits }) => {
+export const SimulationResults: React.FC<SimulationResultsProps> = ({ result, numQubits, error }) => {
+  const sampledCounts = useMemo(() => {
+    if (!result) return null;
+    const counts = QuantumOperations.sampleCounts(result.finalState, SAMPLE_SHOTS);
+    return Object.entries(counts).sort(([a], [b]) => a.localeCompare(b));
+  }, [result]);
+
+  if (error) {
+    return (
+      <Panel>
+        <div className="border border-red-300 bg-red-50 rounded px-3 py-2">
+          <p className="text-sm text-red-700 font-mono">Simulation error: {error}</p>
+        </div>
+      </Panel>
+    );
+  }
+
   if (!result) {
     return (
       <Panel>
@@ -84,6 +104,29 @@ export const SimulationResults: React.FC<SimulationResultsProps> = ({ result, nu
             })}
           </div>
         </div>
+
+        {/* Sampled measurement histogram */}
+        {sampledCounts && (
+          <div>
+            <SectionLabel>Sampled Counts ({SAMPLE_SHOTS} shots)</SectionLabel>
+            <div className="space-y-1.5">
+              {sampledCounts.map(([bitstring, count]) => (
+                <div key={bitstring} className="flex items-center gap-3">
+                  <span className="text-slate-700 font-mono text-sm w-16">|{bitstring}⟩</span>
+                  <div className="flex-1 bg-slate-100 rounded-sm h-2 overflow-hidden">
+                    <div
+                      className="bg-emerald-600 h-2 transition-all duration-300"
+                      style={{ width: `${(count / SAMPLE_SHOTS) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-slate-500 text-xs font-mono w-14 text-right">
+                    {count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Individual Qubit Probabilities */}
         <div>

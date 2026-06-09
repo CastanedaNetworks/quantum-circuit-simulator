@@ -38,7 +38,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
   // Initialize Three.js scene
   const initializeScene = useCallback((): { scene: THREE.Scene; camera: THREE.PerspectiveCamera; renderer: THREE.WebGLRenderer; controls: OrbitControls } | undefined => {
-    console.log('[BlochSphere] Initializing Three.js scene...');
     
     if (!mountRef.current) {
       console.warn('[BlochSphere] Mount ref not available');
@@ -55,7 +54,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       const width = mountRef.current.clientWidth || 400;
       const height = mountRef.current.clientHeight || 400;
 
-      console.log('[BlochSphere] Canvas dimensions:', width, 'x', height);
 
       if (width === 0 || height === 0) {
         console.warn('[BlochSphere] Invalid canvas dimensions');
@@ -66,13 +64,11 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0xf1f5f9); // slate-100
       sceneRef.current = scene;
-      console.log('[BlochSphere] Scene created');
 
       // Camera
       const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
       camera.position.set(2.2, 2.2, 2.2);
       cameraRef.current = camera;
-      console.log('[BlochSphere] Camera created');
 
       // Renderer
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -84,7 +80,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       // Safely append renderer to DOM
       if (mountRef.current && renderer.domElement) {
         mountRef.current.appendChild(renderer.domElement);
-        console.log('[BlochSphere] Renderer DOM element attached');
       } else {
         console.error('[BlochSphere] Failed to attach renderer to DOM');
         renderer.dispose();
@@ -100,7 +95,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       controls.minDistance = 2;
       controls.maxDistance = 8;
       controlsRef.current = controls;
-      console.log('[BlochSphere] Controls created');
 
       // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
@@ -115,7 +109,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       pointLight.position.set(-3, -3, -3);
       scene.add(pointLight);
 
-      console.log('[BlochSphere] Scene initialization completed successfully');
       return { scene, camera, renderer, controls };
       
     } catch (error) {
@@ -348,6 +341,9 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   // Initialize scene on mount
   useEffect(() => {
     const initialState = quantumStateRef.current;
+    // Captured for cleanup: mountRef.current may already be null when the
+    // effect's destructor runs on unmount.
+    const mountNode = mountRef.current;
 
     try {
       const result = initializeScene();
@@ -403,8 +399,8 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
       if (rendererRef.current) {
-        if (mountRef.current && rendererRef.current.domElement) {
-          mountRef.current.removeChild(rendererRef.current.domElement);
+        if (mountNode && rendererRef.current.domElement) {
+          mountNode.removeChild(rendererRef.current.domElement);
         }
         rendererRef.current.dispose();
       }

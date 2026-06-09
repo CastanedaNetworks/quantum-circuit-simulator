@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { QuantumAlgorithm, AlgorithmExecution } from '../types/algorithms';
 import { QuantumSimulator } from '../quantum/simulator';
 import { CircuitElement } from '../types/quantum';
@@ -37,10 +37,14 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
     });
   }, [algorithm]);
 
+  // Keep the latest executeNextStep in a ref so the auto-play timer effect
+  // doesn't need the (re-created every render) callback in its deps.
+  const executeNextStepRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     if (isAutoPlay && currentStep < algorithm.steps.length) {
       const timer = setTimeout(() => {
-        executeNextStep();
+        executeNextStepRef.current();
       }, autoPlaySpeed);
       return () => clearTimeout(timer);
     } else if (isAutoPlay && currentStep >= algorithm.steps.length) {
@@ -52,16 +56,15 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
     if (!simulator || stepIndex >= algorithm.steps.length) return;
 
     const step = algorithm.steps[stepIndex];
-    
-    // Reset simulator and execute all steps up to and including current step
+
+    // Each step's gates array is the full (cumulative) circuit up to that
+    // step, so reset and apply exactly that list — applying earlier steps too
+    // would run their gates twice.
     simulator.reset();
-    
-    for (let i = 0; i <= stepIndex; i++) {
-      const currentStepGates = algorithm.steps[i].gates;
-      currentStepGates.forEach(gate => {
-        simulator.applyGate(gate.gate, gate.targetQubits);
-      });
-    }
+
+    step.gates.forEach(gate => {
+      simulator.applyGate(gate.gate, gate.targetQubits);
+    });
 
     const currentState = simulator.getCurrentState();
     const probabilities = currentState.getMeasurementProbabilities();
@@ -102,6 +105,7 @@ export const AlgorithmStepExecutor: React.FC<AlgorithmStepExecutorProps> = ({
       executeStep(currentStep + 1);
     }
   };
+  executeNextStepRef.current = executeNextStep;
 
   const executePreviousStep = () => {
     if (currentStep > 0) {

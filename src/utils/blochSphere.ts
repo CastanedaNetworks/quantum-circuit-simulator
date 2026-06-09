@@ -16,11 +16,12 @@ export interface SphericalCoordinates {
 export class BlochSphereUtils {
   
   /**
-   * Convert a single-qubit quantum state to Bloch sphere coordinates
+   * Convert a single-qubit quantum state to Bloch sphere coordinates.
    * For a state α|0⟩ + β|1⟩, the Bloch vector is:
-   * x = 2*Re(α*β*)
-   * y = 2*Im(α*β*)
-   * z = |α|² - |β|²
+   * x = 2·Re(α*β) = ⟨X⟩
+   * y = 2·Im(α*β) = ⟨Y⟩
+   * z = |α|² - |β|² = ⟨Z⟩
+   * where α* is the complex conjugate of α (so |+i⟩ = (|0⟩+i|1⟩)/√2 maps to +y).
    */
   static stateToBlochVector(state: QuantumState): BlochVector {
     if (state.getNumQubits() !== 1) {
@@ -30,14 +31,14 @@ export class BlochSphereUtils {
     const alpha = state.getAmplitude(0); // |0⟩ amplitude
     const beta = state.getAmplitude(1);  // |1⟩ amplitude
 
-    // Calculate Bloch vector components
-    const alphaBetaConj = complex(
+    // conj(α)·β
+    const alphaConjBeta = complex(
       alpha.re * beta.re + alpha.im * beta.im,
-      alpha.im * beta.re - alpha.re * beta.im
+      alpha.re * beta.im - alpha.im * beta.re
     );
 
-    const x = 2 * alphaBetaConj.re;
-    const y = 2 * alphaBetaConj.im;
+    const x = 2 * alphaConjBeta.re;
+    const y = 2 * alphaConjBeta.im;
     const z = Math.pow(Number(abs(alpha)), 2) - Math.pow(Number(abs(beta)), 2);
 
     return { x, y, z };

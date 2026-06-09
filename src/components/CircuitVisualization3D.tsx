@@ -19,9 +19,10 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
 
   useEffect(() => {
     if (!mountRef.current) return;
+    const mountNode = mountRef.current;
 
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight;
+    const width = mountNode.clientWidth;
+    const height = mountNode.clientHeight;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf1f5f9); // slate-100
@@ -34,7 +35,7 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.appendChild(renderer.domElement);
+    mountNode.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -126,7 +127,7 @@ export const CircuitVisualization3D: React.FC<CircuitVisualization3DProps> = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      mountRef.current?.removeChild(renderer.domElement);
+      mountNode.removeChild(renderer.domElement);
       renderer.dispose();
     };
   }, [circuit, numQubits]);

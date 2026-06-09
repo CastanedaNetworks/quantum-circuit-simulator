@@ -156,6 +156,16 @@ function getGateDescription(gate: QuantumGate): string {
       return 'Phase flip gate: |0⟩ → |0⟩ and |1⟩ → -|1⟩. Flips the phase of the |1⟩ state.';
     case 'CNOT':
       return 'Controlled-NOT: flips the target qubit when the control qubit is |1⟩. Creates entanglement.';
+    case 'S':
+      return 'Phase gate: |1⟩ → i|1⟩, a 90° rotation about the z-axis. S² = Z.';
+    case 'T':
+      return 'π/8 gate: |1⟩ → e^{iπ/4}|1⟩. Together with H and CNOT it makes a universal gate set.';
+    case 'CZ':
+      return 'Controlled-Z: phase-flips |11⟩. Symmetric — either qubit can be viewed as the control.';
+    case 'SWAP':
+      return 'Exchanges the states of two qubits.';
+    case 'Toffoli':
+      return 'Controlled-controlled-NOT: flips the target only when both controls are |1⟩. The reversible AND gate.';
     default:
       return 'Quantum gate operation.';
   }
