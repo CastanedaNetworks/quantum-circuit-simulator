@@ -29,6 +29,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
+  const [selectedQubit, setSelectedQubit] = useState(0);
 
   // Refs that mirror props/state so callbacks can stay referentially stable
   // (depending on currentVector here previously caused an infinite render loop).
@@ -358,15 +359,9 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       createAxes(scene);
       createGrid(scene);
 
-      // Create initial state vector - only for single-qubit states
-      let initialVector: BlochVector;
-
-      if (initialState.getNumQubits() === 1) {
-        initialVector = BlochSphereUtils.stateToBlochVector(initialState);
-      } else {
-        // For multi-qubit states, show a default |0⟩ vector
-        initialVector = { x: 0, y: 0, z: 1 }; // |0⟩ state
-      }
+      // Initial state vector: reduced (traced-out) state of qubit 0, which
+      // works for any register size.
+      const initialVector = BlochSphereUtils.reducedBlochVector(initialState, 0);
       const stateVector = createStateVector(scene, initialVector);
       stateVectorRef.current = stateVector;
       currentVectorRef.current = initialVector;
@@ -407,20 +402,23 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     };
   }, [initializeScene, createBlochSphere, createAxes, createGrid, createStateVector, animate]);
 
-  // Target vector derived from the current quantum state. Computed in render so
+  // Target vector derived from the current quantum state: the reduced
+  // (partial-trace) Bloch vector of the selected qubit. Computed in render so
   // the update effect can depend on its primitive values rather than the
   // quantumState object identity (which changes every parent render).
-  const targetVector =
-    quantumState.getNumQubits() === 1
-      ? BlochSphereUtils.stateToBlochVector(quantumState)
-      : null;
+  const numQubits = quantumState.getNumQubits();
+  const activeQubit = Math.min(selectedQubit, numQubits - 1);
+  const targetVector = BlochSphereUtils.reducedBlochVector(quantumState, activeQubit);
+  const vectorLength = Math.sqrt(
+    targetVector.x ** 2 + targetVector.y ** 2 + targetVector.z ** 2
+  );
 
   // Update when the quantum state actually changes (by value, not identity).
   useEffect(() => {
-    if (!isInitialized || !targetVector) return;
+    if (!isInitialized) return;
     animateToState(targetVector);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized, targetVector?.x, targetVector?.y, targetVector?.z, animateToState]);
+  }, [isInitialized, targetVector.x, targetVector.y, targetVector.z, animateToState]);
 
   // Show error state if initialization failed
   if (initError) {
@@ -441,11 +439,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
               </div>
               <h3 className="text-sm font-semibold text-slate-900 mb-1">Visualization Error</h3>
               <p className="text-slate-500 text-xs font-mono mb-3">{initError}</p>
-              <p className="text-slate-400 text-xs">
-                {quantumState.getNumQubits() > 1
-                  ? 'Note: the Bloch sphere only supports single-qubit states'
-                  : 'Three.js initialization failed'}
-              </p>
+              <p className="text-slate-400 text-xs">Three.js initialization failed</p>
             </div>
           </div>
         </div>
@@ -457,17 +451,38 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
   return (
     <div className="bg-white border border-slate-200 rounded-md shadow-sm">
-      <div className="flex justify-between items-center px-5 py-3 border-b border-slate-200">
+      <div className="flex justify-between items-center gap-3 px-5 py-3 border-b border-slate-200 flex-wrap">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Bloch Sphere</h2>
-        <span
-          className={`px-2 py-0.5 rounded text-[11px] font-mono border ${
-            isAnimating
-              ? 'bg-blue-50 text-blue-700 border-blue-200'
-              : 'bg-slate-100 text-slate-500 border-slate-200'
-          }`}
-        >
-          {status}
-        </span>
+        <div className="flex items-center gap-3">
+          {numQubits > 1 && (
+            <div className="flex border border-slate-300 rounded overflow-hidden">
+              {Array.from({ length: numQubits }, (_, q) => (
+                <button
+                  key={q}
+                  onClick={() => setSelectedQubit(q)}
+                  className={`px-2 py-0.5 text-[11px] font-mono transition-colors ${
+                    q > 0 ? 'border-l border-slate-300' : ''
+                  } ${
+                    activeQubit === q
+                      ? 'bg-blue-700 text-white'
+                      : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                  }`}
+                >
+                  q{q}
+                </button>
+              ))}
+            </div>
+          )}
+          <span
+            className={`px-2 py-0.5 rounded text-[11px] font-mono border ${
+              isAnimating
+                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                : 'bg-slate-100 text-slate-500 border-slate-200'
+            }`}
+          >
+            {status}
+          </span>
+        </div>
       </div>
 
       <div className="p-5">
@@ -477,12 +492,13 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         />
 
         {/* State readout */}
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-4 gap-3">
           {(
             [
               ['X', currentVector.x, 'text-red-600'],
               ['Y', currentVector.y, 'text-green-600'],
               ['Z', currentVector.z, 'text-blue-600'],
+              ['|r|', vectorLength, 'text-slate-600'],
             ] as const
           ).map(([label, value, color]) => (
             <div key={label} className="border border-slate-200 rounded px-3 py-2">
@@ -493,7 +509,15 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         </div>
 
         <div className="mt-3 text-[11px] text-slate-400 leading-relaxed">
-          Drag to rotate · scroll to zoom · the dark arrow marks the current qubit state.
+          {numQubits > 1 ? (
+            <>
+              Reduced (traced-out) state of qubit q{activeQubit}. Drag to rotate · scroll to
+              zoom. An arrow shorter than 1 means q{activeQubit} is entangled with the other
+              qubits — |r| = 0 is maximally entangled.
+            </>
+          ) : (
+            <>Drag to rotate · scroll to zoom · the dark arrow marks the current qubit state.</>
+          )}
         </div>
       </div>
     </div>

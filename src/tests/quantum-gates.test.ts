@@ -260,6 +260,45 @@ describe('Bloch sphere mapping (regression)', () => {
     }
   });
 
+  it('reduced Bloch vector of a product state matches each factor', () => {
+    // H|0⟩ ⊗ |0⟩: q0 at +x, q1 at +z
+    let state = new QuantumState(2);
+    state = QuantumOperations.applySingleQubitGate(state, HadamardGate, 0);
+
+    const v0 = BlochSphereUtils.reducedBlochVector(state, 0);
+    expect(v0.x).toBeCloseTo(1, 10);
+    expect(v0.y).toBeCloseTo(0, 10);
+    expect(v0.z).toBeCloseTo(0, 10);
+
+    const v1 = BlochSphereUtils.reducedBlochVector(state, 1);
+    expect(v1.x).toBeCloseTo(0, 10);
+    expect(v1.y).toBeCloseTo(0, 10);
+    expect(v1.z).toBeCloseTo(1, 10);
+  });
+
+  it('reduced Bloch vector of a Bell-state qubit is the zero vector', () => {
+    let state = new QuantumState(2);
+    state = QuantumOperations.applySingleQubitGate(state, HadamardGate, 0);
+    state = QuantumOperations.applyGate(state, controlled(PauliXGate), [0, 1]);
+
+    for (const q of [0, 1]) {
+      const v = BlochSphereUtils.reducedBlochVector(state, q);
+      expect(Math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)).toBeCloseTo(0, 10);
+    }
+  });
+
+  it('reduced Bloch vector reduces to stateToBlochVector for one qubit', () => {
+    let state = new QuantumState(1);
+    state = QuantumOperations.applySingleQubitGate(state, HadamardGate, 0);
+    state = QuantumOperations.applySingleQubitGate(state, SGate, 0);
+
+    const direct = BlochSphereUtils.stateToBlochVector(state);
+    const reduced = BlochSphereUtils.reducedBlochVector(state, 0);
+    expect(reduced.x).toBeCloseTo(direct.x, 10);
+    expect(reduced.y).toBeCloseTo(direct.y, 10);
+    expect(reduced.z).toBeCloseTo(direct.z, 10);
+  });
+
   it('S rotates |+⟩ a quarter turn around z: +x → +y', () => {
     let state = new QuantumState(1);
     state = QuantumOperations.applySingleQubitGate(state, HadamardGate, 0);

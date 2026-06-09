@@ -45,6 +45,46 @@ export class BlochSphereUtils {
   }
 
   /**
+   * Bloch vector of ONE qubit inside an n-qubit register: the other qubits
+   * are traced out and the vector of the reduced density matrix ρ_q is
+   * returned. Its length is ≤ 1 — strictly shorter when the qubit is
+   * entangled with the rest of the register (a Bell-pair qubit gives the
+   * zero vector, the maximally mixed state).
+   *
+   * With ρ = (I + xX + yY + zZ)/2:
+   *   ρ01 = Σ_rest ψ(0,rest)·conj(ψ(1,rest)),  x = 2·Re(ρ01),
+   *   y = −2·Im(ρ01),  z = P(0) − P(1).
+   */
+  static reducedBlochVector(state: QuantumState, qubitIndex: number): BlochVector {
+    const numQubits = state.getNumQubits();
+    if (qubitIndex < 0 || qubitIndex >= numQubits) {
+      throw new Error(`Qubit index ${qubitIndex} out of range`);
+    }
+
+    const { re, im } = state.raw();
+    const mask = 1 << (numQubits - 1 - qubitIndex);
+
+    let rho01re = 0;
+    let rho01im = 0;
+    let prob0 = 0;
+    let prob1 = 0;
+
+    for (let i = 0; i < re.length; i++) {
+      if (i & mask) {
+        prob1 += re[i] * re[i] + im[i] * im[i];
+        continue;
+      }
+      prob0 += re[i] * re[i] + im[i] * im[i];
+      const j = i | mask;
+      // ρ01 += ψ_i · conj(ψ_j)
+      rho01re += re[i] * re[j] + im[i] * im[j];
+      rho01im += im[i] * re[j] - re[i] * im[j];
+    }
+
+    return { x: 2 * rho01re, y: -2 * rho01im, z: prob0 - prob1 };
+  }
+
+  /**
    * Convert Bloch vector to spherical coordinates
    */
   static blochVectorToSpherical(vector: BlochVector): SphericalCoordinates {
@@ -122,12 +162,17 @@ export class BlochSphereUtils {
       axis.z /= axisLength;
     }
 
-    // Dot product to get angle
+    // Dot product to get angle. Reduced states can be zero-length vectors
+    // (maximally mixed) — treat those as "no rotation" so slerp falls back to
+    // linear interpolation instead of producing NaN.
     const dot = from.x * to.x + from.y * to.y + from.z * to.z;
     const fromLength = Math.sqrt(from.x * from.x + from.y * from.y + from.z * from.z);
     const toLength = Math.sqrt(to.x * to.x + to.y * to.y + to.z * to.z);
-    
-    const angle = Math.acos(Math.max(-1, Math.min(1, dot / (fromLength * toLength))));
+    const denom = fromLength * toLength;
+
+    const angle = denom < 1e-12
+      ? 0
+      : Math.acos(Math.max(-1, Math.min(1, dot / denom)));
 
     return { axis, angle };
   }
